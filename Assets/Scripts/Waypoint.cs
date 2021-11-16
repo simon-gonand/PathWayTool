@@ -12,6 +12,12 @@ public class Waypoint : MonoBehaviour
         parentPath.waypoints.Remove(this);
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(transform.position, 0.3f);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
