@@ -27,6 +27,6 @@ public class Waypoint : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+       
     }
 }
