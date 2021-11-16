@@ -8,6 +8,8 @@ public class Link : MonoBehaviour
     public Waypoint start;
     public Waypoint end;
 
+    public List<Vector3> pathPoints = new List<Vector3>();
+
     public Path parentPath;
 
     public bool Equals(Waypoint start, Waypoint end)
@@ -30,7 +32,16 @@ public class Link : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(start.transform.position, end.transform.position);
+        for (int i = 0; i < pathPoints.Count; ++i)
+        {
+            if (i == 0)
+            {
+                Gizmos.DrawLine(start.transform.position, pathPoints[0]);
+                continue;
+            }
+            Gizmos.DrawLine(pathPoints[i - 1], pathPoints[i]);
+            if (i == pathPoints.Count - 1) Gizmos.DrawLine(pathPoints[i - 1], end.transform.position);
+        }
     }
 
     // Update is called once per frame

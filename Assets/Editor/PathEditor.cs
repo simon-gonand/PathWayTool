@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
 
 [CustomEditor(typeof(Path))]
 public class PathEditor : Editor
@@ -30,6 +31,24 @@ public class PathEditor : Editor
         waypointsList.GetArrayElementAtIndex(waypointsList.arraySize - 1).objectReferenceValue = wp;
         EditorUtility.SetDirty(obj);
         Undo.RegisterCreatedObjectUndo(obj, "Create waypoint");
+    }
+
+    private void CalculateLinks()
+    {
+        if (linksList.arraySize <= 0) return;
+
+        for (int i = 0; i < linksList.arraySize; ++i)
+        {
+            Link link = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
+            NavMeshPath linkPath = new NavMeshPath();
+            if(NavMesh.CalculatePath(link.start.transform.position, link.end.transform.position, NavMesh.AllAreas, linkPath))
+                if (link.pathPoints.Count > 0)
+                    link.pathPoints.Clear();
+            for (int j = 0; j < linkPath.corners.Length; ++j)
+            {
+                link.pathPoints.Add(linkPath.corners[j]);
+            }
+        }
     }
 
     private void CreateLinks()
@@ -75,6 +94,9 @@ public class PathEditor : Editor
             if (waypointsList.arraySize > 1)
                 CreateLinks();
         }
+
+        if (GUILayout.Button("Calculate Path"))
+            CalculateLinks();
         serializedObject.ApplyModifiedProperties();
     }
 }
