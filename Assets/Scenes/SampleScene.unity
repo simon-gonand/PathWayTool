@@ -328,7 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f88e95332251769418682ae5fad7566d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints: []
+  waypoints:
+  - {fileID: 0}
 --- !u!4 &1232713969
 Transform:
   m_ObjectHideFlags: 0
