@@ -6,6 +6,7 @@ using UnityEngine;
 public class Waypoint : MonoBehaviour
 {
     public Path parentPath;
+    public Transform self;
 
     private void OnDestroy()
     {
