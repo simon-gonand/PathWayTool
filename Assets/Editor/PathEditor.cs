@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
@@ -33,7 +34,7 @@ public class PathEditor : Editor
         waypointsRList.drawElementCallback += ElementWaypointCallback;
         waypointsRList.onAddCallback += AddWaypointCallback;
         waypointsRList.onRemoveCallback += RemoveWaypointCallback;
-        waypointsRList.onReorderCallbackWithDetails += ReorderWaypointCallback;
+        waypointsRList.draggable = false;
 
         linksRList = new ReorderableList(serializedObject, linksList);
         linksRList.drawHeaderCallback += HeaderLinkCallback;
@@ -63,13 +64,29 @@ public class PathEditor : Editor
         rect.y += 2;
         Waypoint waypoint = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint);
         EditorGUI.BeginChangeCheck();
-        waypoint.transform.position = EditorGUI.Vector3Field(rect, "Waypoint " + index, waypoint.transform.position);
+        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 2, rect.height);
+        Rect labelRect = new Rect(rect.x, rect.y, leftRect.width - leftRect.width / 5, rect.height);
+        EditorGUI.LabelField(labelRect, "Waypoint " + index);
+
+        Rect buttonRect = new Rect(labelRect.x + labelRect.width, rect.y, leftRect.width / 5, rect.height);
+        if (GUI.Button(buttonRect, "+"))
+        {
+            GenericMenu addMenu = new GenericMenu();
+
+            addMenu.AddItem(new GUIContent("Add waypoint above"), false, CreateWaypointAndLinks, index);
+            addMenu.AddItem(new GUIContent("Add waypoint below"), false, CreateWaypointAndLinks, index + 1);
+
+            addMenu.ShowAsContext();
+        }
+
+        Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width / 2, rect.height);
+        waypoint.transform.position = EditorGUI.Vector3Field(rightRect, GUIContent.none, waypoint.transform.position);
         if (EditorGUI.EndChangeCheck()) EditorUtility.SetDirty(waypoint.gameObject);
     }
 
     private void AddWaypointCallback(ReorderableList rlist)
     {
-        CreateWaypoint();
+        CreateWaypoint(waypointsList.arraySize);
         if (waypointsList.arraySize > 1)
             CreateLinks();
         waypointsRList.index = waypointsList.arraySize - 1;
@@ -79,14 +96,21 @@ public class PathEditor : Editor
     private void RemoveWaypointCallback(ReorderableList rlist)
     {
         selectedWaypoint = null;
+        if (linksList.arraySize == 0)
+        {
+            waypointsList.DeleteArrayElementAtIndex(rlist.index);
+            return;
+        }
         if (rlist.index == 0)
         {
             linksList.DeleteArrayElementAtIndex(0);
+            waypointsList.DeleteArrayElementAtIndex(rlist.index);
             return;
         }
         if (rlist.index == linksList.arraySize)
         {
             linksList.DeleteArrayElementAtIndex(linksList.arraySize - 1);
+            waypointsList.DeleteArrayElementAtIndex(rlist.index);
             return;
         }
 
@@ -98,25 +122,7 @@ public class PathEditor : Editor
         waypointsList.DeleteArrayElementAtIndex(rlist.index);
     }
 
-    private void ReorderWaypointCallback(ReorderableList rlist, int oldIndex, int newIndex)
-    {
-        /*if (rlist.index == 0)
-        {
-            linksList.DeleteArrayElementAtIndex(0);
-            return;
-        }
-        if (rlist.index == linksList.arraySize)
-        {
-            linksList.DeleteArrayElementAtIndex(linksList.arraySize - 1);
-            return;
-        }
-
-        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
-        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
-        Waypoint start = waypointsList.GetArrayElementAtIndex(rlist.index - 1).objectReferenceValue as Waypoint;
-        Waypoint end = waypointsList.GetArrayElementAtIndex(rlist.index).objectReferenceValue as Waypoint;
-        CreateLink(start, end);*/
-    }
+    
     #endregion
 
     #region links reorderable list
@@ -139,17 +145,68 @@ public class PathEditor : Editor
     }
     #endregion
 
-    private void CreateWaypoint()
+    private void CreateWaypointAndLinks(object index)
     {
-        GameObject obj = new GameObject("Waypoint " + waypointsList.arraySize);
+        serializedObject.Update();
+        int i = (int)index;
+        Debug.Log(i);
+        CreateWaypoint(i);
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        if (i > 0 && i < waypointsList.arraySize - 1 && linksList.arraySize > 0)
+        {
+            linksList.DeleteArrayElementAtIndex(i - 1);
+            serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        }
+        if (i > 0)
+        {
+            Waypoint start = waypointsList.GetArrayElementAtIndex(i - 1).objectReferenceValue as Waypoint;
+            Waypoint end = waypointsList.GetArrayElementAtIndex(i).objectReferenceValue as Waypoint;
+            if (linksList.arraySize == 0)
+            {
+                Link link = CreateLink(start, end, 0);
+                CalculateLink(link);
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else
+            {
+                Link link = CreateLink(start, end, i - 1);
+                CalculateLink(link);
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+        if (i  < waypointsList.arraySize && waypointsList.arraySize > linksList.arraySize + 1)
+        {
+            Waypoint start = waypointsList.GetArrayElementAtIndex(i).objectReferenceValue as Waypoint;
+            Waypoint end = waypointsList.GetArrayElementAtIndex(i + 1).objectReferenceValue as Waypoint;
+            if (linksList.arraySize == 0)
+            {
+                Link link = CreateLink(start, end, 0);
+                CalculateLink(link);
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else
+            {
+                Link link = CreateLink(start, end, i);
+                CalculateLink(link);
+                serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+        }
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void CreateWaypoint(int index)
+    {
+        int i = (int)index;
+        GameObject obj = new GameObject();
         obj.transform.position = Vector3.zero;
         obj.transform.rotation = Quaternion.identity;
         obj.transform.SetParent(pathScript.transform);
         obj.hideFlags = HideFlags.HideInHierarchy;
         Waypoint wp = obj.AddComponent<Waypoint>();
 
-        waypointsList.InsertArrayElementAtIndex(waypointsList.arraySize);
-        waypointsList.GetArrayElementAtIndex(waypointsList.arraySize - 1).objectReferenceValue = wp;
+        
+        waypointsList.InsertArrayElementAtIndex(i);
+        waypointsList.GetArrayElementAtIndex(i).objectReferenceValue = wp;
         EditorUtility.SetDirty(obj);
         Undo.RegisterCreatedObjectUndo(obj, "Create waypoint");
     }
@@ -161,20 +218,25 @@ public class PathEditor : Editor
         for (int i = 0; i < linksList.arraySize; ++i)
         {
             Link link = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
-            NavMeshPath linkPath = new NavMeshPath();
-            if (NavMesh.CalculatePath(link.start.transform.position, link.end.transform.position, NavMesh.AllAreas, linkPath))
-            {
-                if (link.pathPoints.Count > 0)
-                    link.pathPoints.Clear();
-            }
-            for (int j = 0; j < linkPath.corners.Length; ++j)
-            {
-                link.pathPoints.Add(linkPath.corners[j]);
-            }
+            CalculateLink(link);
         }
     }
 
-    private void CreateLink(Waypoint start, Waypoint end, int index)
+    private void CalculateLink(Link link)
+    {
+        NavMeshPath linkPath = new NavMeshPath();
+        if (NavMesh.CalculatePath(link.start.transform.position, link.end.transform.position, NavMesh.AllAreas, linkPath))
+        {
+            if (link.pathPoints.Count > 0)
+                link.pathPoints.Clear();
+        }
+        for (int j = 0; j < linkPath.corners.Length; ++j)
+        {
+            link.pathPoints.Add(linkPath.corners[j]);
+        }
+    }
+
+    private Link CreateLink(Waypoint start, Waypoint end, int index)
     {
         GameObject go = new GameObject("Link");
         Link link = go.AddComponent<Link>();
@@ -184,6 +246,7 @@ public class PathEditor : Editor
         linksList.GetArrayElementAtIndex(index).objectReferenceValue = link;
         go.transform.SetParent(pathScript.transform);
         go.hideFlags = HideFlags.HideInHierarchy;
+        return link;
     }
 
     private void CreateLinks()
@@ -227,17 +290,7 @@ public class PathEditor : Editor
                 Debug.LogWarning("No link has been selected");
                 return;
             }
-
-            NavMeshPath linkPath = new NavMeshPath();
-            if (NavMesh.CalculatePath(selectedLink.start.transform.position, selectedLink.end.transform.position, NavMesh.AllAreas, linkPath))
-            {
-                if (selectedLink.pathPoints.Count > 0)
-                    selectedLink.pathPoints.Clear();
-            }
-            for (int j = 0; j < linkPath.corners.Length; ++j)
-            {
-                selectedLink.pathPoints.Add(linkPath.corners[j]);
-            }
+            CalculateLink(selectedLink);
         }
         serializedObject.ApplyModifiedProperties();
     }
