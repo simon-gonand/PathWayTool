@@ -46,6 +46,7 @@ public class PathEditor : Editor
     {
         SerializedProperty sp = waypointsList.GetArrayElementAtIndex(rList.index);
         selectedWaypoint = sp.objectReferenceValue as Waypoint;
+        selectedLink = null;
     }
 
     private void ElementWaypointCallback(Rect rect, int index, bool isActive, bool isFocused)
@@ -66,18 +67,14 @@ public class PathEditor : Editor
 
     private void SelectLinkCallback(ReorderableList rList)
     {
-        SerializedProperty sp = waypointsList.GetArrayElementAtIndex(rList.index);
+        SerializedProperty sp = linksList.GetArrayElementAtIndex(rList.index);
         selectedLink = sp.objectReferenceValue as Link;
+        selectedWaypoint = null;
     }
     private void ElementLinkCallback(Rect rect, int index, bool isActive, bool isFocused)
     {
         rect.y += 2;
-        Link link = (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link);
-        SerializedObject linkObject = new SerializedObject(link);
-        SerializedProperty pathPointProperty = linkObject.FindProperty("pathPoints");
-        linkObject.Update();
-        EditorGUI.PropertyField(rect, pathPointProperty, new GUIContent(index.ToString()));
-        linkObject.ApplyModifiedProperties();
+        EditorGUI.LabelField(rect, index + " - " + (index + 1));
     }
     #endregion
 
@@ -89,8 +86,7 @@ public class PathEditor : Editor
         obj.transform.SetParent(pathScript.transform);
         obj.hideFlags = HideFlags.HideInHierarchy;
         Waypoint wp = obj.AddComponent<Waypoint>();
-        wp.parentPath = pathScript;
-        // Set Waypoint value
+
         waypointsList.InsertArrayElementAtIndex(waypointsList.arraySize);
         waypointsList.GetArrayElementAtIndex(waypointsList.arraySize - 1).objectReferenceValue = wp;
         EditorUtility.SetDirty(obj);
@@ -110,8 +106,6 @@ public class PathEditor : Editor
                 if (link.pathPoints.Count > 0)
                     link.pathPoints.Clear();
             }
-            else
-                Debug.Log("pa ok");
             for (int j = 0; j < linkPath.corners.Length; ++j)
             {
                 link.pathPoints.Add(linkPath.corners[j]);
@@ -145,7 +139,6 @@ public class PathEditor : Editor
             link.end = end;
             linksList.InsertArrayElementAtIndex(linksList.arraySize);
             linksList.GetArrayElementAtIndex(linksList.arraySize - 1).objectReferenceValue = link;
-            link.parentPath = pathScript;
             go.transform.SetParent(pathScript.transform);
             go.hideFlags = HideFlags.HideInHierarchy;
         }
@@ -185,9 +178,22 @@ public class PathEditor : Editor
             for (int j = 1; j < link.pathPoints.Count; ++j)
                 Handles.DrawLine(link.pathPoints[j - 1], link.pathPoints[j]);
         }
-        if (selectedWaypoint == null) return;
-        selectedWaypoint.transform.position = Handles.PositionHandle(
-            selectedWaypoint.transform.position, 
-            selectedWaypoint.transform.rotation);
+        if (selectedWaypoint) {
+            Undo.RecordObject(selectedWaypoint, "Move Waypoints");
+            selectedWaypoint.transform.position = Handles.PositionHandle(
+                selectedWaypoint.transform.position,
+                selectedWaypoint.transform.rotation);
+        }
+
+        if (selectedLink)
+        {
+            Undo.RecordObject(selectedLink, "Move Path points");
+            for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
+            {
+                selectedLink.pathPoints[i] = Handles.PositionHandle(
+                    selectedLink.pathPoints[i],
+                    selectedLink.transform.rotation);
+            }
+        }
     }
 }
