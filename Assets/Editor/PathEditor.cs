@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +10,13 @@ public class PathEditor : Editor
 {
     SerializedProperty waypointsList;
     SerializedProperty linksList;
+
+    ReorderableList waypointsRList;
+    ReorderableList linksRList;
+
+    Waypoint selectedWaypoint;
+    Link selectedLink;
+
     Path pathScript;
         
     private void OnEnable()
@@ -16,7 +24,62 @@ public class PathEditor : Editor
         waypointsList = serializedObject.FindProperty("waypoints");
         linksList = serializedObject.FindProperty("links");
         pathScript = target as Path;
+
+        waypointsRList = new ReorderableList(serializedObject, waypointsList);
+        waypointsRList.drawHeaderCallback += HeaderWaypointCallback;
+        waypointsRList.onSelectCallback += SelectWaypointCallback;
+        waypointsRList.drawElementCallback += ElementWaypointCallback;
+
+        linksRList = new ReorderableList(serializedObject, linksList);
+        linksRList.drawHeaderCallback += HeaderLinkCallback;
+        linksRList.onSelectCallback += SelectLinkCallback;
+        linksRList.drawElementCallback += ElementLinkCallback;
     }
+
+    #region waypoints reorderable list
+    private void HeaderWaypointCallback(Rect rect)
+    {
+        EditorGUI.LabelField(rect, "Waypoints");
+    }
+
+    private void SelectWaypointCallback(ReorderableList rList)
+    {
+        SerializedProperty sp = waypointsList.GetArrayElementAtIndex(rList.index);
+        selectedWaypoint = sp.objectReferenceValue as Waypoint;
+    }
+
+    private void ElementWaypointCallback(Rect rect, int index, bool isActive, bool isFocused)
+    {
+        rect.y += 2;
+        Waypoint waypoint = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint);
+        EditorGUI.BeginChangeCheck();
+        waypoint.transform.position = EditorGUI.Vector3Field(rect, "Waypoint " + index, waypoint.transform.position);
+        if (EditorGUI.EndChangeCheck()) EditorUtility.SetDirty(waypoint.gameObject);
+    }
+    #endregion
+
+    #region links reorderable list
+    private void HeaderLinkCallback(Rect rect)
+    {
+        EditorGUI.LabelField(rect, "Links");
+    }
+
+    private void SelectLinkCallback(ReorderableList rList)
+    {
+        SerializedProperty sp = waypointsList.GetArrayElementAtIndex(rList.index);
+        selectedLink = sp.objectReferenceValue as Link;
+    }
+    private void ElementLinkCallback(Rect rect, int index, bool isActive, bool isFocused)
+    {
+        rect.y += 2;
+        Link link = (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link);
+        SerializedObject linkObject = new SerializedObject(link);
+        SerializedProperty pathPointProperty = linkObject.FindProperty("pathPoints");
+        linkObject.Update();
+        EditorGUI.PropertyField(rect, pathPointProperty, new GUIContent(index.ToString()));
+        linkObject.ApplyModifiedProperties();
+    }
+    #endregion
 
     private void CreateWaypoint()
     {
@@ -24,6 +87,7 @@ public class PathEditor : Editor
         obj.transform.position = Vector3.zero;
         obj.transform.rotation = Quaternion.identity;
         obj.transform.SetParent(pathScript.transform);
+        obj.hideFlags = HideFlags.HideInHierarchy;
         Waypoint wp = obj.AddComponent<Waypoint>();
         wp.parentPath = pathScript;
         // Set Waypoint value
@@ -41,9 +105,13 @@ public class PathEditor : Editor
         {
             Link link = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
             NavMeshPath linkPath = new NavMeshPath();
-            if(NavMesh.CalculatePath(link.start.transform.position, link.end.transform.position, NavMesh.AllAreas, linkPath))
+            if (NavMesh.CalculatePath(link.start.transform.position, link.end.transform.position, NavMesh.AllAreas, linkPath))
+            {
                 if (link.pathPoints.Count > 0)
                     link.pathPoints.Clear();
+            }
+            else
+                Debug.Log("pa ok");
             for (int j = 0; j < linkPath.corners.Length; ++j)
             {
                 link.pathPoints.Add(linkPath.corners[j]);
@@ -79,6 +147,7 @@ public class PathEditor : Editor
             linksList.GetArrayElementAtIndex(linksList.arraySize - 1).objectReferenceValue = link;
             link.parentPath = pathScript;
             go.transform.SetParent(pathScript.transform);
+            go.hideFlags = HideFlags.HideInHierarchy;
         }
     }
 
@@ -86,8 +155,9 @@ public class PathEditor : Editor
     {
         serializedObject.Update();
 
-        EditorGUILayout.PropertyField(waypointsList);
-        EditorGUILayout.PropertyField(linksList);
+        //EditorGUILayout.PropertyField(waypointsList);
+        waypointsRList.DoLayoutList();
+        linksRList.DoLayoutList();
         if (GUILayout.Button("Create Point"))
         {
             CreateWaypoint();
@@ -98,5 +168,26 @@ public class PathEditor : Editor
         if (GUILayout.Button("Calculate Path"))
             CalculateLinks();
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void OnSceneGUI()
+    {
+        Tools.current = Tool.None;
+        for (int i = 0; i < waypointsList.arraySize; ++i)
+        {
+            Waypoint waypoint = waypointsList.GetArrayElementAtIndex(i).objectReferenceValue as Waypoint;
+            Handles.DrawSolidDisc(waypoint.transform.position, Vector3.up, 0.3f);
+        }
+        Handles.color = Color.red;
+        for (int i = 0; i < linksList.arraySize; ++i)
+        {
+            Link link = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
+            for (int j = 1; j < link.pathPoints.Count; ++j)
+                Handles.DrawLine(link.pathPoints[j - 1], link.pathPoints[j]);
+        }
+        if (selectedWaypoint == null) return;
+        selectedWaypoint.transform.position = Handles.PositionHandle(
+            selectedWaypoint.transform.position, 
+            selectedWaypoint.transform.rotation);
     }
 }

@@ -2,16 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class Waypoint : MonoBehaviour
 {
     public Path parentPath;
     public Transform self;
-
-    private void OnDestroy()
-    {
-        parentPath.waypoints.Remove(this);
-    }
 
     private void OnDrawGizmos()
     {
@@ -22,7 +16,7 @@ public class Waypoint : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        self = transform;
     }
 
     // Update is called once per frame
