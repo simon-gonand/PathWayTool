@@ -30,11 +30,14 @@ public class PathEditor : Editor
         waypointsRList.drawHeaderCallback += HeaderWaypointCallback;
         waypointsRList.onSelectCallback += SelectWaypointCallback;
         waypointsRList.drawElementCallback += ElementWaypointCallback;
+        waypointsRList.onAddCallback += AddWaypointCallback;
+        waypointsRList.onRemoveCallback += RemoveWaypointCallback;
 
         linksRList = new ReorderableList(serializedObject, linksList);
         linksRList.drawHeaderCallback += HeaderLinkCallback;
         linksRList.onSelectCallback += SelectLinkCallback;
         linksRList.drawElementCallback += ElementLinkCallback;
+        linksRList.drawFooterCallback += FooterLinkCallback;
     }
 
     #region waypoints reorderable list
@@ -59,6 +62,25 @@ public class PathEditor : Editor
         waypoint.transform.position = EditorGUI.Vector3Field(rect, "Waypoint " + index, waypoint.transform.position);
         if (EditorGUI.EndChangeCheck()) EditorUtility.SetDirty(waypoint.gameObject);
     }
+
+    private void AddWaypointCallback(ReorderableList rlist)
+    {
+        CreateWaypoint();
+        if (waypointsList.arraySize > 1)
+            CreateLinks();
+    }
+
+    private void RemoveWaypointCallback(ReorderableList rlist)
+    {
+        waypointsList.DeleteArrayElementAtIndex(rlist.index);
+        selectedWaypoint = null;
+        while (linksList.arraySize > 0)
+        {
+            linksList.DeleteArrayElementAtIndex(0);
+        }
+        if (waypointsList.arraySize > 1)
+            CreateLinks();
+    }
     #endregion
 
     #region links reorderable list
@@ -77,6 +99,11 @@ public class PathEditor : Editor
     {
         rect.y += 2;
         EditorGUI.LabelField(rect, index + " - " + (index + 1));
+    }
+
+    private void FooterLinkCallback(Rect rect)
+    {
+        // No footer needed
     }
     #endregion
 
@@ -153,13 +180,7 @@ public class PathEditor : Editor
         //EditorGUILayout.PropertyField(waypointsList);
         waypointsRList.DoLayoutList();
         linksRList.DoLayoutList();
-        if (GUILayout.Button("Create Point"))
-        {
-            CreateWaypoint();
-            if (waypointsList.arraySize > 1)
-                CreateLinks();
-        }
-
+        
         if (GUILayout.Button("Calculate Path"))
             CalculateLinks();
         serializedObject.ApplyModifiedProperties();
