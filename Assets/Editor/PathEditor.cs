@@ -289,6 +289,16 @@ public class PathEditor : Editor
             }
             CalculateLink(selectedLink);
         }
+        
+        if (GUILayout.Button("Erase all"))
+        {
+            while(waypointsList.arraySize !=0 || linksList.arraySize != 0)
+            {
+                waypointsList.DeleteArrayElementAtIndex(0);
+                if (linksList.arraySize == 0) continue;
+                linksList.DeleteArrayElementAtIndex(0);
+            }
+        }
         serializedObject.ApplyModifiedProperties();
     }
 
