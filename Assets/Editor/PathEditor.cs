@@ -15,6 +15,7 @@ public class PathEditor : Editor
     ReorderableList linksRList;
 
     Waypoint selectedWaypoint;
+    int selectedWaypointIndex;
     Link selectedLink;
 
     Path pathScript;
@@ -46,6 +47,7 @@ public class PathEditor : Editor
     {
         SerializedProperty sp = waypointsList.GetArrayElementAtIndex(rList.index);
         selectedWaypoint = sp.objectReferenceValue as Waypoint;
+        selectedWaypointIndex = rList.index;
         selectedLink = null;
     }
 
@@ -179,21 +181,43 @@ public class PathEditor : Editor
                 Handles.DrawLine(link.pathPoints[j - 1], link.pathPoints[j]);
         }
         if (selectedWaypoint) {
-            Undo.RecordObject(selectedWaypoint, "Move Waypoints");
+            Undo.RecordObject(selectedWaypoint.transform, "Move Waypoints");
             selectedWaypoint.transform.position = Handles.PositionHandle(
                 selectedWaypoint.transform.position,
                 selectedWaypoint.transform.rotation);
+            EditorUtility.SetDirty(selectedWaypoint.transform);
+            if (linksList.arraySize > 0)
+            {
+                if (selectedWaypointIndex < linksList.arraySize)
+                {
+                    Link link = linksList.GetArrayElementAtIndex(selectedWaypointIndex).objectReferenceValue as Link;
+                    if (link.pathPoints.Count == 0) return;
+                    link.pathPoints[0] = selectedWaypoint.transform.position;
+                }
+                if (selectedWaypointIndex > 0)
+                {
+                    Link link = linksList.GetArrayElementAtIndex(selectedWaypointIndex - 1).objectReferenceValue as Link;
+                    if (link.pathPoints.Count == 0) return;
+                    link.pathPoints[link.pathPoints.Count - 1] = selectedWaypoint.transform.position;
+                }
+            }
         }
 
-        if (selectedLink)
+        if (selectedLink && selectedLink.pathPoints.Count != 0)
         {
-            Undo.RecordObject(selectedLink, "Move Path points");
+            
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
             {
+                Undo.RecordObject(selectedLink, "Move Path points");
                 selectedLink.pathPoints[i] = Handles.PositionHandle(
                     selectedLink.pathPoints[i],
                     selectedLink.transform.rotation);
+                EditorUtility.SetDirty(selectedLink);
             }
+
+            selectedLink.start.transform.position = selectedLink.pathPoints[0];
+
+            selectedLink.end.transform.position = selectedLink.pathPoints[selectedLink.pathPoints.Count - 1];
         }
     }
 }
