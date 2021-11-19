@@ -37,7 +37,9 @@ public class PathEditor : Editor
         linksRList.drawHeaderCallback += HeaderLinkCallback;
         linksRList.onSelectCallback += SelectLinkCallback;
         linksRList.drawElementCallback += ElementLinkCallback;
-        linksRList.drawFooterCallback += FooterLinkCallback;
+        linksRList.draggable = false;
+        linksRList.displayAdd = false;
+        linksRList.displayRemove = false;
     }
 
     #region waypoints reorderable list
@@ -101,11 +103,6 @@ public class PathEditor : Editor
     {
         rect.y += 2;
         EditorGUI.LabelField(rect, index + " - " + (index + 1));
-    }
-
-    private void FooterLinkCallback(Rect rect)
-    {
-        // No footer needed
     }
     #endregion
 
