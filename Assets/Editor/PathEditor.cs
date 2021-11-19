@@ -32,6 +32,7 @@ public class PathEditor : Editor
         waypointsRList.drawElementCallback += ElementWaypointCallback;
         waypointsRList.onAddCallback += AddWaypointCallback;
         waypointsRList.onRemoveCallback += RemoveWaypointCallback;
+        waypointsRList.onReorderCallbackWithDetails += ReorderWaypointCallback;
 
         linksRList = new ReorderableList(serializedObject, linksList);
         linksRList.drawHeaderCallback += HeaderLinkCallback;
@@ -78,12 +79,12 @@ public class PathEditor : Editor
     {
         waypointsList.DeleteArrayElementAtIndex(rlist.index);
         selectedWaypoint = null;
-        while (linksList.arraySize > 0)
-        {
-            linksList.DeleteArrayElementAtIndex(0);
-        }
-        if (waypointsList.arraySize > 1)
-            CreateLinks();
+        RecreateLinks();
+    }
+
+    private void ReorderWaypointCallback(ReorderableList rlist, int oldIndex, int newIndex)
+    {
+        RecreateLinks();
     }
     #endregion
 
@@ -139,6 +140,16 @@ public class PathEditor : Editor
                 link.pathPoints.Add(linkPath.corners[j]);
             }
         }
+    }
+
+    private void RecreateLinks()
+    {
+        while (linksList.arraySize > 0)
+        {
+            linksList.DeleteArrayElementAtIndex(0);
+        }
+        if (waypointsList.arraySize > 1)
+            CreateLinks();
     }
 
     private void CreateLinks()
