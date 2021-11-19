@@ -77,14 +77,44 @@ public class PathEditor : Editor
 
     private void RemoveWaypointCallback(ReorderableList rlist)
     {
-        waypointsList.DeleteArrayElementAtIndex(rlist.index);
         selectedWaypoint = null;
-        RecreateLinks();
+        if (rlist.index == 0)
+        {
+            linksList.DeleteArrayElementAtIndex(0);
+            return;
+        }
+        if (rlist.index == linksList.arraySize)
+        {
+            linksList.DeleteArrayElementAtIndex(linksList.arraySize - 1);
+            return;
+        }
+
+        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
+        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
+        Waypoint start = waypointsList.GetArrayElementAtIndex(rlist.index - 1).objectReferenceValue as Waypoint;
+        Waypoint end = waypointsList.GetArrayElementAtIndex(rlist.index + 1).objectReferenceValue as Waypoint;
+        CreateLink(start, end);
+        waypointsList.DeleteArrayElementAtIndex(rlist.index);
     }
 
     private void ReorderWaypointCallback(ReorderableList rlist, int oldIndex, int newIndex)
     {
-        RecreateLinks();
+        /*if (rlist.index == 0)
+        {
+            linksList.DeleteArrayElementAtIndex(0);
+            return;
+        }
+        if (rlist.index == linksList.arraySize)
+        {
+            linksList.DeleteArrayElementAtIndex(linksList.arraySize - 1);
+            return;
+        }
+
+        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
+        linksList.DeleteArrayElementAtIndex(rlist.index - 1);
+        Waypoint start = waypointsList.GetArrayElementAtIndex(rlist.index - 1).objectReferenceValue as Waypoint;
+        Waypoint end = waypointsList.GetArrayElementAtIndex(rlist.index).objectReferenceValue as Waypoint;
+        CreateLink(start, end);*/
     }
     #endregion
 
@@ -142,14 +172,16 @@ public class PathEditor : Editor
         }
     }
 
-    private void RecreateLinks()
+    private void CreateLink(Waypoint start, Waypoint end)
     {
-        while (linksList.arraySize > 0)
-        {
-            linksList.DeleteArrayElementAtIndex(0);
-        }
-        if (waypointsList.arraySize > 1)
-            CreateLinks();
+        GameObject go = new GameObject("Link");
+        Link link = go.AddComponent<Link>();
+        link.start = start;
+        link.end = end;
+        linksList.InsertArrayElementAtIndex(linksList.arraySize);
+        linksList.GetArrayElementAtIndex(linksList.arraySize - 1).objectReferenceValue = link;
+        go.transform.SetParent(pathScript.transform);
+        go.hideFlags = HideFlags.HideInHierarchy;
     }
 
     private void CreateLinks()
@@ -172,14 +204,7 @@ public class PathEditor : Editor
             }
             if (linkAlreadyExist) continue;
 
-            GameObject go = new GameObject("Link");
-            Link link = go.AddComponent<Link>();
-            link.start = start;
-            link.end = end;
-            linksList.InsertArrayElementAtIndex(linksList.arraySize);
-            linksList.GetArrayElementAtIndex(linksList.arraySize - 1).objectReferenceValue = link;
-            go.transform.SetParent(pathScript.transform);
-            go.hideFlags = HideFlags.HideInHierarchy;
+            CreateLink(start, end);
         }
     }
 
