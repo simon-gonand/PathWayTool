@@ -330,7 +330,7 @@ public class PathEditor : Editor
             }
         }
 
-        if (selectedLink && selectedLink.pathPoints.Count != 0)
+        if (selectedLink && selectedLink.pathPoints.Count > 0)
         {
             
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
@@ -355,7 +355,7 @@ public class PathEditor : Editor
             {
                 Link nextLink = linksList.GetArrayElementAtIndex(selectedLinkIndex + 1).objectReferenceValue as Link;
                 nextLink.pathPoints[0] = selectedLink.end.transform.position;
-                nextLink.start.transform.position = selectedLink.pathPoints[0];
+                nextLink.start.transform.position = nextLink.pathPoints[0];
             }
         }
     }
