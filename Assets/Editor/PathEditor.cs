@@ -121,8 +121,6 @@ public class PathEditor : Editor
         CreateLink(start, end, rlist.index - 1);
         waypointsList.DeleteArrayElementAtIndex(rlist.index);
     }
-
-    
     #endregion
 
     #region links reorderable list
@@ -149,7 +147,6 @@ public class PathEditor : Editor
     {
         serializedObject.Update();
         int i = (int)index;
-        Debug.Log(i);
         CreateWaypoint(i);
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         if (i > 0 && i < waypointsList.arraySize - 1 && linksList.arraySize > 0)
