@@ -68,6 +68,8 @@ public class PathEditor : Editor
         CreateWaypoint();
         if (waypointsList.arraySize > 1)
             CreateLinks();
+        waypointsRList.index = waypointsList.arraySize - 1;
+        waypointsRList.onSelectCallback(waypointsRList);
     }
 
     private void RemoveWaypointCallback(ReorderableList rlist)
