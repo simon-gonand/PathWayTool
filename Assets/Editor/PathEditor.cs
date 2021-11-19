@@ -17,6 +17,7 @@ public class PathEditor : Editor
     Waypoint selectedWaypoint;
     int selectedWaypointIndex;
     Link selectedLink;
+    int selectedLinkIndex;
 
     Path pathScript;
         
@@ -93,7 +94,7 @@ public class PathEditor : Editor
         linksList.DeleteArrayElementAtIndex(rlist.index - 1);
         Waypoint start = waypointsList.GetArrayElementAtIndex(rlist.index - 1).objectReferenceValue as Waypoint;
         Waypoint end = waypointsList.GetArrayElementAtIndex(rlist.index + 1).objectReferenceValue as Waypoint;
-        CreateLink(start, end);
+        CreateLink(start, end, rlist.index - 1);
         waypointsList.DeleteArrayElementAtIndex(rlist.index);
     }
 
@@ -128,6 +129,7 @@ public class PathEditor : Editor
     {
         SerializedProperty sp = linksList.GetArrayElementAtIndex(rList.index);
         selectedLink = sp.objectReferenceValue as Link;
+        selectedLinkIndex = rList.index;
         selectedWaypoint = null;
     }
     private void ElementLinkCallback(Rect rect, int index, bool isActive, bool isFocused)
@@ -172,14 +174,14 @@ public class PathEditor : Editor
         }
     }
 
-    private void CreateLink(Waypoint start, Waypoint end)
+    private void CreateLink(Waypoint start, Waypoint end, int index)
     {
         GameObject go = new GameObject("Link");
         Link link = go.AddComponent<Link>();
         link.start = start;
         link.end = end;
-        linksList.InsertArrayElementAtIndex(linksList.arraySize);
-        linksList.GetArrayElementAtIndex(linksList.arraySize - 1).objectReferenceValue = link;
+        linksList.InsertArrayElementAtIndex(index);
+        linksList.GetArrayElementAtIndex(index).objectReferenceValue = link;
         go.transform.SetParent(pathScript.transform);
         go.hideFlags = HideFlags.HideInHierarchy;
     }
@@ -204,7 +206,7 @@ public class PathEditor : Editor
             }
             if (linkAlreadyExist) continue;
 
-            CreateLink(start, end);
+            CreateLink(start, end, linksList.arraySize);
         }
     }
 
@@ -218,6 +220,25 @@ public class PathEditor : Editor
         
         if (GUILayout.Button("Calculate Path"))
             CalculateLinks();
+        if (GUILayout.Button("Calculate Selected Link"))
+        {
+            if (!selectedLink)
+            {
+                Debug.LogWarning("No link has been selected");
+                return;
+            }
+
+            NavMeshPath linkPath = new NavMeshPath();
+            if (NavMesh.CalculatePath(selectedLink.start.transform.position, selectedLink.end.transform.position, NavMesh.AllAreas, linkPath))
+            {
+                if (selectedLink.pathPoints.Count > 0)
+                    selectedLink.pathPoints.Clear();
+            }
+            for (int j = 0; j < linkPath.corners.Length; ++j)
+            {
+                selectedLink.pathPoints.Add(linkPath.corners[j]);
+            }
+        }
         serializedObject.ApplyModifiedProperties();
     }
 
@@ -270,10 +291,22 @@ public class PathEditor : Editor
                     selectedLink.transform.rotation);
                 EditorUtility.SetDirty(selectedLink);
             }
-
+            
             selectedLink.start.transform.position = selectedLink.pathPoints[0];
+            if (selectedLinkIndex > 0)
+            {
+                Link previousLink = linksList.GetArrayElementAtIndex(selectedLinkIndex - 1).objectReferenceValue as Link;
+                previousLink.pathPoints[previousLink.pathPoints.Count - 1] = selectedLink.pathPoints[0];
+                previousLink.end.transform.position = selectedLink.pathPoints[0];
+            }
 
             selectedLink.end.transform.position = selectedLink.pathPoints[selectedLink.pathPoints.Count - 1];
+            if (selectedLinkIndex < linksList.arraySize - 1)
+            {
+                Link nextLink = linksList.GetArrayElementAtIndex(selectedLinkIndex + 1).objectReferenceValue as Link;
+                nextLink.pathPoints[0] = selectedLink.end.transform.position;
+                nextLink.start.transform.position = selectedLink.pathPoints[0];
+            }
         }
     }
 }
