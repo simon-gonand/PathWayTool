@@ -80,7 +80,26 @@ public class PathEditor : Editor
         }
 
         Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width / 2, rect.height);
+        EditorGUI.BeginChangeCheck();
         waypoint.transform.position = EditorGUI.Vector3Field(rightRect, GUIContent.none, waypoint.transform.position);
+        if (EditorGUI.EndChangeCheck())
+        {
+            if (linksList.arraySize > 0)
+            {
+                if (index < linksList.arraySize)
+                {
+                    Link link = linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link;
+                    if (link.pathPoints.Count == 0) return;
+                    link.pathPoints[0] = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint).transform.position;
+                }
+                if (index > 0)
+                {
+                    Link link = linksList.GetArrayElementAtIndex(index - 1).objectReferenceValue as Link;
+                    if (link.pathPoints.Count == 0) return;
+                    link.pathPoints[link.pathPoints.Count - 1] = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint).transform.position;
+                }
+            }
+        }
         if (EditorGUI.EndChangeCheck()) EditorUtility.SetDirty(waypoint.gameObject);
     }
 
