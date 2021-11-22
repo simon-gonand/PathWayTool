@@ -64,7 +64,7 @@ public class PathEditor : Editor
         rect.y += 2;
         Waypoint waypoint = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint);
         EditorGUI.BeginChangeCheck();
-        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 2, rect.height);
+        Rect leftRect = new Rect(rect.x, rect.y, rect.width - rect.width / 3, rect.height);
         Rect labelRect = new Rect(rect.x, rect.y, leftRect.width - leftRect.width / 5, rect.height);
         EditorGUI.LabelField(labelRect, "Waypoint " + index);
 
@@ -79,9 +79,20 @@ public class PathEditor : Editor
             addMenu.ShowAsContext();
         }
 
-        Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width / 2, rect.height);
+        Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width / 3, rect.height);
+        Rect xRect = new Rect(rightRect.x, rect.y, rightRect.width / 2, rect.height);
+        Rect labelxRect = new Rect(xRect.x, rect.y, xRect.width / 4, rect.height);
+        Rect floatxRect = new Rect(xRect.x + labelxRect.width, rect.y, xRect.width - xRect.width / 4, rect.height);
+        Rect yRect = new Rect(rightRect.x + xRect.width, rect.y, rightRect.width / 2, rect.height);
+        Rect labelyRect = new Rect(yRect.x, rect.y, yRect.width / 4, rect.height);
+        Rect floatyRect = new Rect(yRect.x + labelyRect.width, rect.y, yRect.width - yRect.width / 4, rect.height);
         EditorGUI.BeginChangeCheck();
-        waypoint.transform.position = EditorGUI.Vector3Field(rightRect, GUIContent.none, waypoint.transform.position);
+        Vector3 newPosition = waypoint.transform.position;
+        GUI.Label(labelxRect, "X");
+        newPosition.x = EditorGUI.FloatField(floatxRect, GUIContent.none, waypoint.transform.position.x);
+        GUI.Label(labelyRect, "Y");
+        newPosition.z = EditorGUI.FloatField(floatyRect, GUIContent.none, waypoint.transform.position.z);
+        waypoint.transform.position = newPosition;
         if (EditorGUI.EndChangeCheck())
         {
             if (linksList.arraySize > 0)
