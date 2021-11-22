@@ -312,6 +312,23 @@ public class PathEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
+    private Vector3 Create2DPositionHandles(Vector3 position)
+    {
+        float constantZoom = HandleUtility.GetHandleSize(position);
+
+        Handles.color = Handles.yAxisColor;
+        Vector3 newPos = Handles.Slider2D(position, Vector3.up,
+            Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        position = newPos;
+        Handles.color = Handles.xAxisColor;
+        Vector3 xPos = Handles.Slider(position, Vector3.right, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        position = xPos;
+        Handles.color = Handles.zAxisColor;
+        Vector3 zPos = Handles.Slider(position, Vector3.forward, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        position = zPos;
+        return position;
+    }
+
     private void OnSceneGUI()
     {
         Tools.current = Tool.None;
@@ -329,9 +346,7 @@ public class PathEditor : Editor
         }
         if (selectedWaypoint) {
             Undo.RecordObject(selectedWaypoint.transform, "Move Waypoints");
-            selectedWaypoint.transform.position = Handles.PositionHandle(
-                selectedWaypoint.transform.position,
-                selectedWaypoint.transform.rotation);
+            selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position);
             EditorUtility.SetDirty(selectedWaypoint.transform);
             if (linksList.arraySize > 0)
             {
@@ -356,9 +371,7 @@ public class PathEditor : Editor
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
             {
                 Undo.RecordObject(selectedLink, "Move Path points");
-                selectedLink.pathPoints[i] = Handles.PositionHandle(
-                    selectedLink.pathPoints[i],
-                    selectedLink.transform.rotation);
+                selectedLink.pathPoints[i] = Create2DPositionHandles(selectedLink.pathPoints[i]);
                 EditorUtility.SetDirty(selectedLink);
             }
             
