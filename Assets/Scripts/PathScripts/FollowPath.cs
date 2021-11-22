@@ -6,7 +6,6 @@ public class FollowPath : MonoBehaviour
 {
     public Path m_Path;
     public Transform self;
-    public float speed = 1.0f;
 
     private float timer = 0.0f;
     private int indexWaypoint = 0;
@@ -22,7 +21,7 @@ public class FollowPath : MonoBehaviour
 
     private void SetPathPosition()
     {
-        timer += speed * Time.deltaTime;
+        timer += m_Path.links[indexWaypoint].speed * Time.deltaTime;
         if (indexLinkPoint < m_Path.links[indexWaypoint].pathPoints.Count)
         {
             if (self.position != m_Path.links[indexWaypoint].pathPoints[indexLinkPoint])

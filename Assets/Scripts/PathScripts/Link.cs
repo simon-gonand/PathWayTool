@@ -9,13 +9,15 @@ public class Link : MonoBehaviour
 
     public List<Vector3> pathPoints = new List<Vector3>();
 
+    public float speed;
+
     public bool Equals(Waypoint start, Waypoint end)
     {
         return this.start == start && this.end == end;
     }
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
         
     }

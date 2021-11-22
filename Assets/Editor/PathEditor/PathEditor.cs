@@ -139,7 +139,17 @@ public class PathEditor : Editor
     private void ElementLinkCallback(Rect rect, int index, bool isActive, bool isFocused)
     {
         rect.y += 2;
-        EditorGUI.LabelField(rect, index + " - " + (index + 1));
+        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 2, rect.height);
+        EditorGUI.LabelField(leftRect, index + " - " + (index + 1));
+
+        Rect rightRect = new Rect(rect.x + leftRect.width, rect.y, rect.width / 2, rect.height);
+        EditorGUI.BeginChangeCheck();
+        (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed = EditorGUI.FloatField(rightRect, "Speed", (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed);
+        if (EditorGUI.EndChangeCheck())
+        {
+            if ((linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed < 0)
+                (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed = 0;
+        }
     }
     #endregion
 
