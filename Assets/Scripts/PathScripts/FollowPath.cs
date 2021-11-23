@@ -4,52 +4,58 @@ using UnityEngine;
 
 public class FollowPath : MonoBehaviour
 {
-    public Path m_Path;
+    public Path path;
     public Transform self;
 
-    private float timer = 0.0f;
-    private int indexWaypoint = 0;
-    private int indexLinkPoint = 1;
-    private Vector3 previousPointPosition;
+    private float moveAmount = 0.0f;
+    private int linkIndex = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-        self.position = m_Path.links[0].start.self.position;
-        previousPointPosition = self.position;
+        if (path.allPoints.Count > 0)
+            self.position = path.allPoints[0];
     }
 
-    private void SetPathPosition()
+    private Vector3 CalculatePositionOnBeziers(Vector3 a, Vector3 b, Vector3 startAnchor, Vector3 endAnchor, float t)
     {
-        timer += m_Path.links[indexWaypoint].speed * Time.deltaTime;
-        if (indexLinkPoint < m_Path.links[indexWaypoint].pathPoints.Count)
-        {
-            if (self.position != m_Path.links[indexWaypoint].pathPoints[indexLinkPoint])
-                self.position = Vector3.MoveTowards(previousPointPosition, m_Path.links[indexWaypoint].pathPoints[indexLinkPoint], 
-                    timer);
-            else
-            {
-                timer = 0;
-                previousPointPosition = m_Path.links[indexWaypoint].pathPoints[indexLinkPoint];
-                ++indexLinkPoint;
-            }
-        }
-        else
-        {
-            timer = 0;
-            ++indexWaypoint;
-            if (indexWaypoint >= m_Path.links.Count) return;
-            previousPointPosition = m_Path.links[indexWaypoint].pathPoints[0];
-            indexLinkPoint = 1;
-        }
+        Vector3 A = Vector3.Lerp(a, startAnchor, t);
+        Vector3 B = Vector3.Lerp(startAnchor, endAnchor, t);
+        Vector3 C = Vector3.Lerp(endAnchor, b, t);
+
+        Vector3 AB = Vector3.Lerp(A, B, t);
+        Vector3 BC = Vector3.Lerp(B, C, t);
+
+        transform.forward = BC - AB;
+
+        return Vector3.Lerp(AB, BC, t);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (indexWaypoint < m_Path.links.Count)
+        if (linkIndex == path.links.Count) return;
+        moveAmount = (moveAmount + (Time.deltaTime * path.links[linkIndex].speed)) % 1.0f;
+        
+        float fullMoveAmount = moveAmount * path.allPoints.Count - 1;
+        int indexPoint = Mathf.FloorToInt(fullMoveAmount);
+        if (indexPoint < 0) indexPoint = 0;
+        float moveAmountPoint = fullMoveAmount - indexPoint;
+        if (path.allPoints.Count < 2) return;
+        Vector3 nextPoint;
+        if (indexPoint == 0 && indexPoint < path.allPoints.Count - 1)
         {
-            SetPathPosition();
+            nextPoint = path.allPoints[indexPoint + 1];
+        }
+        else
+        {
+            nextPoint = path.allPoints[indexPoint + 1];
+        }
+
+        self.position = CalculatePositionOnBeziers(path.allPoints[indexPoint], nextPoint, path.allAnchors[indexPoint * 2], path.allAnchors[indexPoint * 2 + 1], moveAmountPoint);
+        if (moveAmount > 0.98f * (((float)linkIndex + 1) / ((float)path.links.Count)))
+        { 
+            ++linkIndex;
         }
     }
 }

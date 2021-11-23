@@ -203,13 +203,11 @@ public class PathEditor : Editor
             if (linksList.arraySize == 0)
             {
                 Link link = CreateLink(start, end, 0);
-                CalculateLink(link);
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
             else
             {
                 Link link = CreateLink(start, end, i - 1);
-                CalculateLink(link);
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -220,13 +218,11 @@ public class PathEditor : Editor
             if (linksList.arraySize == 0)
             {
                 Link link = CreateLink(start, end, 0);
-                CalculateLink(link);
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
             else
             {
                 Link link = CreateLink(start, end, i);
-                CalculateLink(link);
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -268,10 +264,34 @@ public class PathEditor : Editor
         {
             if (link.pathPoints.Count > 0)
                 link.pathPoints.Clear();
+            if (link.anchors.Count > 0)
+                link.anchors.Clear();
         }
-        for (int j = 0; j < linkPath.corners.Length; ++j)
+        for (int i = 0; i < linkPath.corners.Length; ++i)
         {
-            link.pathPoints.Add(linkPath.corners[j]);
+            link.pathPoints.Add(linkPath.corners[i]);
+            if (linkPath.corners.Length < 2) continue;
+            if (i == linkPath.corners.Length - 1) continue;
+            Vector3 previousPoint;
+            Vector3 nextPoint;
+            if (i == 0 && i < linkPath.corners.Length - 1)
+            {
+                nextPoint = linkPath.corners[i + 1];
+                Vector3 nextDist = nextPoint - linkPath.corners[i];
+                previousPoint = linkPath.corners[i] - nextDist;
+            }
+            else
+            {
+                previousPoint = linkPath.corners[i - 1];
+                nextPoint = linkPath.corners[i + 1];
+            }
+
+            Vector3 startTan = nextPoint - previousPoint;
+            Vector3 startAnchor = linkPath.corners[i] + startTan * 0.1f;
+            Vector3 dist = startAnchor - linkPath.corners[i];
+            Vector3 endAnchor = linkPath.corners[i] - dist;
+            link.anchors.Add(startAnchor);
+            link.anchors.Add(endAnchor);
         }
     }
 
@@ -340,6 +360,8 @@ public class PathEditor : Editor
                 if (linksList.arraySize == 0) continue;
                 linksList.DeleteArrayElementAtIndex(0);
             }
+            selectedLink = null;
+            selectedWaypoint = null;
         }
         serializedObject.ApplyModifiedProperties();
     }
@@ -383,66 +405,9 @@ public class PathEditor : Editor
             {
                 if (currentLink.pathPoints.Count < 2) break;
                 if (j == currentLink.pathPoints.Count - 1) continue;
-                Vector3 previousPoint;
-                Vector3 nextPoint;
-                if (j == 0 && j < currentLink.pathPoints.Count - 1)
-                {
-                    nextPoint = currentLink.pathPoints[j + 1];
-                    Vector3 nextDist = nextPoint - currentLink.pathPoints[j];
-                    previousPoint = currentLink.pathPoints[j] - nextDist;
-                }
-                else
-                {
-                    previousPoint = currentLink.pathPoints[j - 1];
-                    nextPoint = currentLink.pathPoints[j + 1];
-                }
-                Vector3 secNextPoint;
-                if (j == currentLink.pathPoints.Count - 2)
-                {
-                    Vector3 nextDist = nextPoint - currentLink.pathPoints[j];
-                    secNextPoint = nextPoint + nextDist;
-                }
-                else
-                    secNextPoint = currentLink.pathPoints[j + 2];
+                Vector3 nextPoint = currentLink.pathPoints[j + 1];
 
-                if (pathScript.anchors.Count != nbPoints)
-                {
-                    Vector3 startTan = nextPoint - previousPoint;
-                    Vector3 endTan = currentLink.pathPoints[j] - secNextPoint;
-                    Vector3 startAnchor = currentLink.pathPoints[j] + startTan * 0.1f;
-                    Vector3 dist = startAnchor - currentLink.pathPoints[j];
-                    Vector3 endAnchor = currentLink.pathPoints[j] - dist;
-                    pathScript.anchors.Add(startAnchor);
-                    pathScript.anchors.Add(endAnchor);
-                }
-
-                float constantZoom = HandleUtility.GetHandleSize(pathScript.anchors[(i + 1) * (j * 2)]);
-                Undo.RecordObject(pathScript, "Modify Path");
-                EditorGUI.BeginChangeCheck();
-                pathScript.anchors[(i + 1) * (j * 2)] = Handles.Slider2D(pathScript.anchors[(i + 1)*(j * 2)], Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
-                if (EditorGUI.EndChangeCheck())
-                {
-                    if (j > 0)
-                    {
-                        Vector3 dist = pathScript.anchors[(i + 1) * (j * 2 )] - currentLink.pathPoints[j];
-                        pathScript.anchors[(i + 1) * (j * 2 - 1)] = currentLink.pathPoints[j] - dist;
-                    }
-                }
-                constantZoom = HandleUtility.GetHandleSize(pathScript.anchors[(i + 1) * (j * 2 + 1)]);
-                EditorGUI.BeginChangeCheck();
-                pathScript.anchors[(i + 1) * (j * 2 + 1)] = Handles.Slider2D(pathScript.anchors[(i + 1) * (j * 2 + 1)], Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
-                if (EditorGUI.EndChangeCheck())
-                {
-                    if (j != currentLink.pathPoints.Count - 2)
-                    {
-                        Vector3 dist = pathScript.anchors[(i + 1) * (j * 2 + 1)] - currentLink.pathPoints[j + 1];
-                        pathScript.anchors[j * 2 + 2] = currentLink.pathPoints[j + 1] - dist;
-                    }
-                }
-
-                Handles.DrawLine(currentLink.pathPoints[j], pathScript.anchors[(i + 1) * (j * 2)]);
-                Handles.DrawLine(nextPoint, pathScript.anchors[(i + 1) * (j * 2 + 1)]);
-                Handles.DrawBezier(currentLink.pathPoints[j], nextPoint, pathScript.anchors[(i + 1) * (j * 2)], pathScript.anchors[(i + 1) * (j * 2 + 1)], Color.green, null, 1.0f);
+                Handles.DrawBezier(currentLink.pathPoints[j], nextPoint, currentLink.anchors[j * 2], currentLink.anchors[j * 2 + 1], Color.green, null, 1.0f);
             }
         }
     }
@@ -482,13 +447,43 @@ public class PathEditor : Editor
             }
         }
 
-        if (selectedLink && selectedLink.pathPoints.Count > 0)
+        if (selectedLink && selectedLink.pathPoints.Count > 2)
         {
 
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
             {
                 Undo.RecordObject(selectedLink, "Move Path points");
                 selectedLink.pathPoints[i] = Create2DPositionHandles(selectedLink.pathPoints[i]);
+
+                if (selectedLink.pathPoints.Count < 2) continue;
+                if (i == selectedLink.pathPoints.Count - 1) continue;
+                float constantZoom = HandleUtility.GetHandleSize(selectedLink.anchors[i * 2]);
+                EditorGUI.BeginChangeCheck();
+                selectedLink.anchors[(i * 2)] = Handles.Slider2D(selectedLink.anchors[i * 2], Vector3.up, Vector3.right, Vector3.forward, 
+                    0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (i > 0)
+                    {
+                        Vector3 dist = selectedLink.anchors[i * 2] - selectedLink.pathPoints[i];
+                        selectedLink.anchors[i * 2 - 1] = selectedLink.pathPoints[i] - dist;
+                    }
+                }
+                constantZoom = HandleUtility.GetHandleSize(selectedLink.anchors[i * 2 + 1]);
+                EditorGUI.BeginChangeCheck();
+                selectedLink.anchors[i * 2 + 1] = Handles.Slider2D(selectedLink.anchors[i * 2 + 1], Vector3.up, Vector3.right, Vector3.forward,
+                    0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (i != selectedLink.pathPoints.Count - 2)
+                    {
+                        Vector3 dist = selectedLink.anchors[i * 2 + 1] - selectedLink.pathPoints[i + 1];
+                        selectedLink.anchors[i * 2 + 2] = selectedLink.pathPoints[i + 1] - dist;
+                    }
+                }
+                Vector3 nextPoint = selectedLink.pathPoints[i + 1];
+                Handles.DrawLine(selectedLink.pathPoints[i], selectedLink.anchors[i * 2]);
+                Handles.DrawLine(nextPoint, selectedLink.anchors[i * 2 + 1]);
                 EditorUtility.SetDirty(selectedLink);
             }
 

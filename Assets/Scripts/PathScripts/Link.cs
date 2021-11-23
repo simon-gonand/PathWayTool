@@ -8,6 +8,7 @@ public class Link : MonoBehaviour
     public Waypoint end;
 
     public List<Vector3> pathPoints = new List<Vector3>();
+    public List<Vector3> anchors = new List<Vector3>();
 
     public float speed;
 
