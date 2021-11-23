@@ -410,7 +410,8 @@ public class PathEditor : Editor
                     Vector3 startTan = nextPoint - previousPoint;
                     Vector3 endTan = currentLink.pathPoints[j] - secNextPoint;
                     Vector3 startAnchor = currentLink.pathPoints[j] + startTan * 0.1f;
-                    Vector3 endAnchor = nextPoint + endTan * 0.1f;
+                    Vector3 dist = startAnchor - currentLink.pathPoints[j];
+                    Vector3 endAnchor = currentLink.pathPoints[j] - dist;
                     pathScript.anchors.Add(startAnchor);
                     pathScript.anchors.Add(endAnchor);
                 }
