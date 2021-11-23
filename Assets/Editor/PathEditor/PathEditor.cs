@@ -289,7 +289,7 @@ public class PathEditor : Editor
             Vector3 startTan = nextPoint - previousPoint;
             Vector3 startAnchor = linkPath.corners[i] + startTan * 0.1f;
             Vector3 dist = startAnchor - linkPath.corners[i];
-            Vector3 endAnchor = linkPath.corners[i] - dist;
+            Vector3 endAnchor = nextPoint - dist;
             link.anchors.Add(startAnchor);
             link.anchors.Add(endAnchor);
         }
