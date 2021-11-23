@@ -86,6 +86,7 @@ public class PathEditor : Editor
         Rect yRect = new Rect(rightRect.x + xRect.width, rect.y, rightRect.width / 2, rect.height);
         Rect labelyRect = new Rect(yRect.x, rect.y, yRect.width / 4, rect.height);
         Rect floatyRect = new Rect(yRect.x + labelyRect.width, rect.y, yRect.width - yRect.width / 4, rect.height);
+        //bolo bolo les pirates héhé
         EditorGUI.BeginChangeCheck();
         Vector3 newPosition = waypoint.transform.position;
         GUI.Label(labelxRect, "X");
