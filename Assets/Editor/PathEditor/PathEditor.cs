@@ -509,6 +509,20 @@ public class PathEditor : Editor
                 if (selectedLink.pathPoints.Count < 2) continue;
                 if (i == selectedLink.pathPoints.Count - 1) continue;
                 float constantZoom = HandleUtility.GetHandleSize(selectedLink.anchors[i * 2]);
+                
+                if (i == 0 && selectedLinkIndex > 0)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    pathScript.links[selectedLinkIndex - 1].anchors[pathScript.links[selectedLinkIndex - 1].anchors.Count - 1] = 
+                        Handles.Slider2D(pathScript.links[selectedLinkIndex - 1].anchors[pathScript.links[selectedLinkIndex - 1].anchors.Count - 1],
+                        Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Vector3 dist = pathScript.links[selectedLinkIndex - 1].anchors[pathScript.links[selectedLinkIndex - 1].anchors.Count - 1] - selectedLink.pathPoints[i];
+                        selectedLink.anchors[i * 2] = selectedLink.pathPoints[i] - dist;
+                    }
+                    Handles.DrawLine(pathScript.links[selectedLinkIndex - 1].anchors[pathScript.links[selectedLinkIndex - 1].anchors.Count - 1], selectedLink.pathPoints[i]);
+                }
                 EditorGUI.BeginChangeCheck();
                 selectedLink.anchors[(i * 2)] = Handles.Slider2D(selectedLink.anchors[i * 2], Vector3.up, Vector3.right, Vector3.forward, 
                     0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
@@ -519,8 +533,28 @@ public class PathEditor : Editor
                         Vector3 dist = selectedLink.anchors[i * 2] - selectedLink.pathPoints[i];
                         selectedLink.anchors[i * 2 - 1] = selectedLink.pathPoints[i] - dist;
                     }
+                    else if (selectedLinkIndex > 0)
+                    {
+                        Vector3 dist = selectedLink.anchors[i * 2] - selectedLink.pathPoints[i];
+                        pathScript.links[selectedLinkIndex - 1].anchors[pathScript.links[selectedLinkIndex - 1].anchors.Count - 1] = selectedLink.pathPoints[i] - dist;
+                    }
                 }
+
+
                 constantZoom = HandleUtility.GetHandleSize(selectedLink.anchors[i * 2 + 1]);
+                if (i * 2 + 1 > selectedLink.anchors.Count - 2 && selectedLinkIndex < pathScript.links.Count - 1)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    pathScript.links[selectedLinkIndex + 1].anchors[0] =
+                        Handles.Slider2D(pathScript.links[selectedLinkIndex + 1].anchors[0],
+                        Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Vector3 dist = pathScript.links[selectedLinkIndex + 1].anchors[0] - selectedLink.pathPoints[i + 1];
+                        selectedLink.anchors[i * 2 + 1] = selectedLink.pathPoints[i + 1] - dist;
+                    }
+                    Handles.DrawLine(pathScript.links[selectedLinkIndex + 1].anchors[0], selectedLink.pathPoints[i + 1]);
+                }
                 EditorGUI.BeginChangeCheck();
                 selectedLink.anchors[i * 2 + 1] = Handles.Slider2D(selectedLink.anchors[i * 2 + 1], Vector3.up, Vector3.right, Vector3.forward,
                     0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
@@ -530,6 +564,11 @@ public class PathEditor : Editor
                     {
                         Vector3 dist = selectedLink.anchors[i * 2 + 1] - selectedLink.pathPoints[i + 1];
                         selectedLink.anchors[i * 2 + 2] = selectedLink.pathPoints[i + 1] - dist;
+                    }
+                    else if (selectedLinkIndex < pathScript.links.Count - 1)
+                    {
+                        Vector3 dist = selectedLink.anchors[i * 2 + 1] - selectedLink.pathPoints[i + 1];
+                        pathScript.links[selectedLinkIndex + 1].anchors[0] = selectedLink.pathPoints[i + 1] - dist;
                     }
                 }
                 Vector3 nextPoint = selectedLink.pathPoints[i + 1];
