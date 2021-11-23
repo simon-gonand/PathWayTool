@@ -26,6 +26,7 @@ public class PathEditor : Editor
     {
         waypointsList = serializedObject.FindProperty("waypoints");
         linksList = serializedObject.FindProperty("links");
+
         pathScript = target as Path;
 
         waypointsRList = new ReorderableList(serializedObject, waypointsList);
@@ -360,6 +361,91 @@ public class PathEditor : Editor
         return position;
     }
 
+    private int GetNbPoints()
+    {
+        int nbPoints = 0;
+        for (int i = 0; i < linksList.arraySize; ++i)
+        {
+            Link currentLink = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
+            nbPoints += currentLink.pathPoints.Count;
+        }
+        return nbPoints;
+    }
+
+    private void SceneBezier()
+    {
+        int nbPoints = GetNbPoints();
+        if (nbPoints <= 0) return;
+        for (int i = 0; i < linksList.arraySize; ++i)
+        {
+            Link currentLink = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
+            for (int j = 0; j < currentLink.pathPoints.Count; ++j)
+            {
+                if (currentLink.pathPoints.Count < 2) break;
+                if (j == currentLink.pathPoints.Count - 1) continue;
+                Vector3 previousPoint;
+                Vector3 nextPoint;
+                if (j == 0 && j < currentLink.pathPoints.Count - 1)
+                {
+                    nextPoint = currentLink.pathPoints[j + 1];
+                    Vector3 nextDist = nextPoint - currentLink.pathPoints[j];
+                    previousPoint = currentLink.pathPoints[j] - nextDist;
+                }
+                else
+                {
+                    previousPoint = currentLink.pathPoints[j - 1];
+                    nextPoint = currentLink.pathPoints[j + 1];
+                }
+                Vector3 secNextPoint;
+                if (j == currentLink.pathPoints.Count - 2)
+                {
+                    Vector3 nextDist = nextPoint - currentLink.pathPoints[j];
+                    secNextPoint = nextPoint + nextDist;
+                }
+                else
+                    secNextPoint = currentLink.pathPoints[j + 2];
+
+                if (pathScript.anchors.Count != nbPoints)
+                {
+                    Vector3 startTan = nextPoint - previousPoint;
+                    Vector3 endTan = currentLink.pathPoints[j] - secNextPoint;
+                    Vector3 startAnchor = currentLink.pathPoints[j] + startTan * 0.1f;
+                    Vector3 endAnchor = nextPoint + endTan * 0.1f;
+                    pathScript.anchors.Add(startAnchor);
+                    pathScript.anchors.Add(endAnchor);
+                }
+
+                float constantZoom = HandleUtility.GetHandleSize(pathScript.anchors[(i + 1) * (j * 2)]);
+                Undo.RecordObject(pathScript, "Modify Path");
+                EditorGUI.BeginChangeCheck();
+                pathScript.anchors[(i + 1) * (j * 2)] = Handles.Slider2D(pathScript.anchors[(i + 1)*(j * 2)], Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (j > 0)
+                    {
+                        Vector3 dist = pathScript.anchors[(i + 1) * (j * 2 )] - currentLink.pathPoints[j];
+                        pathScript.anchors[(i + 1) * (j * 2 - 1)] = currentLink.pathPoints[j] - dist;
+                    }
+                }
+                constantZoom = HandleUtility.GetHandleSize(pathScript.anchors[(i + 1) * (j * 2 + 1)]);
+                EditorGUI.BeginChangeCheck();
+                pathScript.anchors[(i + 1) * (j * 2 + 1)] = Handles.Slider2D(pathScript.anchors[(i + 1) * (j * 2 + 1)], Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (j != currentLink.pathPoints.Count - 2)
+                    {
+                        Vector3 dist = pathScript.anchors[(i + 1) * (j * 2 + 1)] - currentLink.pathPoints[j + 1];
+                        pathScript.anchors[j * 2 + 2] = currentLink.pathPoints[j + 1] - dist;
+                    }
+                }
+
+                Handles.DrawLine(currentLink.pathPoints[j], pathScript.anchors[(i + 1) * (j * 2)]);
+                Handles.DrawLine(nextPoint, pathScript.anchors[(i + 1) * (j * 2 + 1)]);
+                Handles.DrawBezier(currentLink.pathPoints[j], nextPoint, pathScript.anchors[(i + 1) * (j * 2)], pathScript.anchors[(i + 1) * (j * 2 + 1)], Color.green, null, 1.0f);
+            }
+        }
+    }
+
     private void OnSceneGUI()
     {
         Tools.current = Tool.None;
@@ -372,10 +458,9 @@ public class PathEditor : Editor
         for (int i = 0; i < linksList.arraySize; ++i)
         {
             Link link = linksList.GetArrayElementAtIndex(i).objectReferenceValue as Link;
-            for (int j = 1; j < link.pathPoints.Count; ++j)
-                Handles.DrawLine(link.pathPoints[j - 1], link.pathPoints[j]);
         }
-        if (selectedWaypoint) {
+        if (selectedWaypoint)
+        {
             Undo.RecordObject(selectedWaypoint.transform, "Move Waypoints");
             selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position);
             EditorUtility.SetDirty(selectedWaypoint.transform);
@@ -398,14 +483,14 @@ public class PathEditor : Editor
 
         if (selectedLink && selectedLink.pathPoints.Count > 0)
         {
-            
+
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
             {
                 Undo.RecordObject(selectedLink, "Move Path points");
                 selectedLink.pathPoints[i] = Create2DPositionHandles(selectedLink.pathPoints[i]);
                 EditorUtility.SetDirty(selectedLink);
             }
-            
+
             selectedLink.start.transform.position = selectedLink.pathPoints[0];
             if (selectedLinkIndex > 0)
             {
@@ -422,5 +507,6 @@ public class PathEditor : Editor
                 nextLink.start.transform.position = nextLink.pathPoints[0];
             }
         }
+        SceneBezier();
     }
 }

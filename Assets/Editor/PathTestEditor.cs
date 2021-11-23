@@ -42,7 +42,7 @@ public class PathTestEditor : Editor
             else
                 secNextPoint = path.points[i + 2];
 
-            if (path.anchors.Count < path.points.Count + 1)
+            if (path.anchors.Count != path.points.Count + 1)
             {
                 Vector3 startTan = nextPoint - previousPoint;
                 Vector3 endTan = path.points[i] - secNextPoint;
