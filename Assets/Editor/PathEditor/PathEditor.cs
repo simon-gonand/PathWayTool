@@ -366,13 +366,39 @@ public class PathEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    private Vector3 Create2DPositionHandles(Vector3 position)
+    private Vector3 Create2DPositionHandles(Vector3 position, int linkIndex, int anchorIndex)
     {
         float constantZoom = HandleUtility.GetHandleSize(position);
 
+        Vector3 prevPos = position;
         Handles.color = Handles.yAxisColor;
+        EditorGUI.BeginChangeCheck();
         Vector3 newPos = Handles.Slider2D(position, Vector3.up,
             Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        if (EditorGUI.EndChangeCheck())
+        {
+            Vector3 offset = newPos - prevPos;
+
+            if (anchorIndex * 2 > pathScript.links[linkIndex].anchors.Count - 2 && linkIndex < pathScript.links.Count - 1)
+            {
+                ++linkIndex;
+                pathScript.links[linkIndex].anchors[0] += offset;
+                --linkIndex;
+            }
+            else if (anchorIndex * 2 <= pathScript.links[linkIndex].anchors.Count - 2)
+                pathScript.links[linkIndex].anchors[anchorIndex * 2] += offset;
+
+            if (anchorIndex == 0 && linkIndex > 0)
+            {
+                --linkIndex;
+                anchorIndex = pathScript.links[linkIndex].anchors.Count - 1;
+                pathScript.links[linkIndex].anchors[anchorIndex] += offset;
+            }
+            else if (anchorIndex > 0)
+            {
+                pathScript.links[linkIndex].anchors[anchorIndex * 2 - 1] += offset;
+            }
+        }
         position = newPos;
         Handles.color = Handles.xAxisColor;
         Vector3 xPos = Handles.Slider(position, Vector3.right, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
@@ -428,7 +454,14 @@ public class PathEditor : Editor
         if (selectedWaypoint)
         {
             Undo.RecordObject(selectedWaypoint.transform, "Move Waypoints");
-            selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position);
+            int index = selectedWaypointIndex;
+            int indexAnchor = 0;
+            if (selectedWaypointIndex == linksList.arraySize)
+            {
+                --index;
+                indexAnchor = pathScript.links[index].anchors.Count - 1;
+            }
+            selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position, index, indexAnchor);
             EditorUtility.SetDirty(selectedWaypoint.transform);
             if (linksList.arraySize > 0)
             {
@@ -447,13 +480,13 @@ public class PathEditor : Editor
             }
         }
 
-        if (selectedLink && selectedLink.pathPoints.Count > 2)
+        if (selectedLink && selectedLink.pathPoints.Count >= 2)
         {
 
             for (int i = 0; i < selectedLink.pathPoints.Count; ++i)
             {
                 Undo.RecordObject(selectedLink, "Move Path points");
-                selectedLink.pathPoints[i] = Create2DPositionHandles(selectedLink.pathPoints[i]);
+                selectedLink.pathPoints[i] = Create2DPositionHandles(selectedLink.pathPoints[i], selectedLinkIndex, i);
 
                 if (selectedLink.pathPoints.Count < 2) continue;
                 if (i == selectedLink.pathPoints.Count - 1) continue;
