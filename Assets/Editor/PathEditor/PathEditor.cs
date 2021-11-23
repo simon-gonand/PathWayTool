@@ -366,6 +366,31 @@ public class PathEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
+    private void UpdateAnchors(Vector3 prevPos, Vector3 newPos, int linkIndex, int anchorIndex)
+    {
+        Vector3 offset = newPos - prevPos;
+
+        if (anchorIndex * 2 > pathScript.links[linkIndex].anchors.Count - 2 && linkIndex < pathScript.links.Count - 1)
+        {
+            ++linkIndex;
+            pathScript.links[linkIndex].anchors[0] += offset;
+            --linkIndex;
+        }
+        else if (anchorIndex * 2 <= pathScript.links[linkIndex].anchors.Count - 2)
+            pathScript.links[linkIndex].anchors[anchorIndex * 2] += offset;
+
+        if (anchorIndex == 0 && linkIndex > 0)
+        {
+            --linkIndex;
+            anchorIndex = pathScript.links[linkIndex].anchors.Count - 1;
+            pathScript.links[linkIndex].anchors[anchorIndex] += offset;
+        }
+        else if (anchorIndex > 0)
+        {
+            pathScript.links[linkIndex].anchors[anchorIndex * 2 - 1] += offset;
+        }
+    }
+
     private Vector3 Create2DPositionHandles(Vector3 position, int linkIndex, int anchorIndex)
     {
         float constantZoom = HandleUtility.GetHandleSize(position);
@@ -377,35 +402,28 @@ public class PathEditor : Editor
             Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            Vector3 offset = newPos - prevPos;
-
-            if (anchorIndex * 2 > pathScript.links[linkIndex].anchors.Count - 2 && linkIndex < pathScript.links.Count - 1)
-            {
-                ++linkIndex;
-                pathScript.links[linkIndex].anchors[0] += offset;
-                --linkIndex;
-            }
-            else if (anchorIndex * 2 <= pathScript.links[linkIndex].anchors.Count - 2)
-                pathScript.links[linkIndex].anchors[anchorIndex * 2] += offset;
-
-            if (anchorIndex == 0 && linkIndex > 0)
-            {
-                --linkIndex;
-                anchorIndex = pathScript.links[linkIndex].anchors.Count - 1;
-                pathScript.links[linkIndex].anchors[anchorIndex] += offset;
-            }
-            else if (anchorIndex > 0)
-            {
-                pathScript.links[linkIndex].anchors[anchorIndex * 2 - 1] += offset;
-            }
+            UpdateAnchors(prevPos, newPos, linkIndex, anchorIndex);
         }
         position = newPos;
+
         Handles.color = Handles.xAxisColor;
+        EditorGUI.BeginChangeCheck();
         Vector3 xPos = Handles.Slider(position, Vector3.right, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        if (EditorGUI.EndChangeCheck())
+        {
+            UpdateAnchors(prevPos, xPos, linkIndex, anchorIndex);
+        }
         position = xPos;
+
         Handles.color = Handles.zAxisColor;
+        EditorGUI.BeginChangeCheck();
         Vector3 zPos = Handles.Slider(position, Vector3.forward, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
+        if (EditorGUI.EndChangeCheck())
+        {
+            UpdateAnchors(prevPos, zPos, linkIndex, anchorIndex);
+        }
         position = zPos;
+
         return position;
     }
 
