@@ -424,7 +424,7 @@ public class PathEditor : Editor
             Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            if (pathScript.links[linkIndex].anchors.Count > 0)
+            if (linksList.arraySize > 0 && pathScript.links[linkIndex].anchors.Count > 0)
                 UpdateAnchors(prevPos, newPos, linkIndex, anchorIndex);
         }
         position = newPos;
@@ -434,7 +434,7 @@ public class PathEditor : Editor
         Vector3 xPos = Handles.Slider(position, Vector3.right, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            if (pathScript.links[linkIndex].anchors.Count > 0)
+            if (linksList.arraySize > 0 && pathScript.links[linkIndex].anchors.Count > 0)
                 UpdateAnchors(prevPos, xPos, linkIndex, anchorIndex);
         }
         position = xPos;
@@ -444,7 +444,7 @@ public class PathEditor : Editor
         Vector3 zPos = Handles.Slider(position, Vector3.forward, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            if (pathScript.links[linkIndex].anchors.Count > 0)
+            if (linksList.arraySize > 0 && pathScript.links[linkIndex].anchors.Count > 0)
                 UpdateAnchors(prevPos, zPos, linkIndex, anchorIndex);
         }
         position = zPos;
@@ -499,12 +499,12 @@ public class PathEditor : Editor
             Undo.RecordObject(selectedWaypoint.transform, "Move Waypoints");
             int index = selectedWaypointIndex;
             int indexAnchor = 0;
-            if (selectedWaypointIndex == linksList.arraySize)
+            if (selectedWaypointIndex == linksList.arraySize && linksList.arraySize > 0)
             {
                 --index;
-                indexAnchor = pathScript.links[index].anchors.Count - 1;
+                indexAnchor = pathScript.links[index].anchors.Count;
             }
-            selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position, index, indexAnchor);
+            selectedWaypoint.transform.position = Create2DPositionHandles(selectedWaypoint.transform.position, index, indexAnchor / 2);
             EditorUtility.SetDirty(selectedWaypoint.transform);
             if (linksList.arraySize > 0)
             {
