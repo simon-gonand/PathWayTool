@@ -167,6 +167,18 @@ MonoBehaviour:
   - {x: 2.2095485, y: 0.083333336, z: 13.288498}
   - {x: 1.123785, y: 0.083333336, z: 13.37817}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &60428648
 Transform:
   m_ObjectHideFlags: 1
@@ -1120,6 +1132,18 @@ MonoBehaviour:
   - {x: 2.5, y: 0.083333336, z: 0}
   - {x: 2.5, y: 0.083333336, z: 0}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &263119899
 GameObject:
   m_ObjectHideFlags: 1
@@ -1167,6 +1191,18 @@ MonoBehaviour:
   - {x: -0.90912867, y: 0.083333336, z: -8.765931}
   - {x: -0.090871334, y: 0.083333336, z: -10.567403}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &263119901
 Transform:
   m_ObjectHideFlags: 1
@@ -1480,6 +1516,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   path: {fileID: 598811548}
   self: {fileID: 433957924}
+  camPosition: {fileID: 963194228}
 --- !u!136 &433957921
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1634,6 +1671,18 @@ MonoBehaviour:
   - {x: 2.5366027, y: 0.083333336, z: 11.952597}
   - {x: 1.4633973, y: 0.083333336, z: 14.047403}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &459621310
 GameObject:
   m_ObjectHideFlags: 1
@@ -1730,6 +1779,18 @@ MonoBehaviour:
   - {x: -3.24562, y: 0.083333336, z: -4.677491}
   - {x: -4.107544, y: 0.083333336, z: -12.999757}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &490769140
 GameObject:
   m_ObjectHideFlags: 0
@@ -2082,6 +2143,50 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!1 &595800078
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 595800080}
+  - component: {fileID: 595800079}
+  m_Layer: 0
+  m_Name: New Game Object
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &595800079
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595800078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd64b83146dbf834681127961fdca537, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  self: {fileID: 0}
+--- !u!4 &595800080
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 595800078}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3.64398, y: 0.083333336, z: 7.245488}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 598811549}
+  m_RootOrder: 62
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &597239112
 GameObject:
   m_ObjectHideFlags: 1
@@ -2120,6 +2225,18 @@ MonoBehaviour:
   - {x: -2.7926106, y: 0.083333336, z: 11.35652}
   - {x: -4.330485, y: 0.083333336, z: 0.27433395}
   speed: 0.2
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &597239114
 Transform:
   m_ObjectHideFlags: 1
@@ -2164,14 +2281,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waypoints:
-  - {fileID: 1902680011}
-  - {fileID: 350916819}
-  - {fileID: 764242042}
-  - {fileID: 1353993275}
+  - {fileID: 1847801674}
+  - {fileID: 595800079}
   links:
-  - {fileID: 1045333511}
-  - {fileID: 1350414063}
-  - {fileID: 1329808323}
+  - {fileID: 2092376840}
   allPoints: []
   allAnchors: []
 --- !u!4 &598811549
@@ -2246,6 +2359,9 @@ Transform:
   - {fileID: 1271686180}
   - {fileID: 1353993276}
   - {fileID: 1329808324}
+  - {fileID: 1847801675}
+  - {fileID: 595800080}
+  - {fileID: 2092376841}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2340,6 +2456,18 @@ MonoBehaviour:
   - {x: -1.7568327, y: 0.083333336, z: 4.4413834}
   - {x: 0.090168595, y: 0.083333336, z: 3.5586166}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &648007556
 Transform:
   m_ObjectHideFlags: 1
@@ -2453,6 +2581,18 @@ MonoBehaviour:
   - {x: -1.7089987, y: 0.083333336, z: 5.4703875}
   - {x: -1.9576654, y: 0.083333336, z: 1.8629465}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &678963122
 GameObject:
   m_ObjectHideFlags: 0
@@ -2906,6 +3046,18 @@ MonoBehaviour:
   - {x: 1.4186358, y: 0.083333336, z: -8.404743}
   - {x: -0.08530247, y: 0.083333336, z: -10.928591}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &724753703
 Transform:
   m_ObjectHideFlags: 1
@@ -3090,6 +3242,18 @@ MonoBehaviour:
   - {x: 7.2294326, y: 0.083333336, z: 13.654165}
   - {x: 5.628201, y: 0.083333336, z: 12.115791}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &843460734
 Transform:
   m_ObjectHideFlags: 1
@@ -3180,13 +3344,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.45850122, y: -0, z: -0, w: 0.8886938}
+  m_LocalPosition: {x: -3.23, y: 7.84, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 54.581, y: 0, z: 0}
 --- !u!1 &970688045
 GameObject:
   m_ObjectHideFlags: 1
@@ -3235,6 +3399,18 @@ MonoBehaviour:
   pathPoints: []
   anchors: []
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &987183770
 GameObject:
   m_ObjectHideFlags: 1
@@ -3519,18 +3695,30 @@ MonoBehaviour:
   start: {fileID: 1902680011}
   end: {fileID: 350916819}
   pathPoints:
-  - {x: -1.6850929, y: 0.083333336, z: 14.617865}
-  - {x: 1.6666667, y: 0.083333336, z: 13.333334}
-  - {x: 2, y: 0.083333336, z: 13}
+  - {x: -2.6441035, y: 0.083333336, z: 14.047282}
+  - {x: 0.66666675, y: 0.083333336, z: 2.833333}
+  - {x: 1, y: 0.083333336, z: 2.5}
   - {x: 7.8202767, y: 0.083333336, z: -3.5780878}
   anchors:
-  - {x: 0.39033383, y: 0.083333336, z: 15.30661}
-  - {x: 0.99631476, y: 0.083333336, z: 13.5902405}
-  - {x: 2.035176, y: 0.083333336, z: 13.171548}
-  - {x: 1.6314907, y: 0.083333336, z: 13.161786}
-  - {x: 2.615361, y: 0.083333336, z: 11.308858}
-  - {x: 8.36701, y: 0.083333336, z: -1.2726514}
-  speed: 0
+  - {x: -1.9819493, y: 0.083333336, z: 11.804492}
+  - {x: 0.0045125484, y: 0.083333336, z: 5.076123}
+  - {x: 1.0310771, y: 0.083333336, z: 1.6786047}
+  - {x: 0.6355896, y: 0.083333336, z: 3.6547284}
+  - {x: 1.7153611, y: 0.083333336, z: 1.8588579}
+  - {x: 7.1049156, y: 0.083333336, z: -2.9369457}
+  speed: 0.1
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1045333512
 Transform:
   m_ObjectHideFlags: 1
@@ -3937,6 +4125,18 @@ MonoBehaviour:
   - {x: -3.176248, y: 0.083333336, z: -10.28757}
   - {x: -4.5971255, y: 0.083333336, z: -0.84693146}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1302005973
 GameObject:
   m_ObjectHideFlags: 1
@@ -4388,9 +4588,21 @@ MonoBehaviour:
   - {x: -5.980979, y: 0.083333336, z: -9.790568}
   - {x: -9.269707, y: 0.083333336, z: 7.402672}
   anchors:
-  - {x: -8.322668, y: 0.083333336, z: -7.8304543}
-  - {x: -11.328264, y: 0.083333336, z: 3.8624668}
-  speed: 0
+  - {x: -6.6387243, y: 0.083333336, z: -6.35192}
+  - {x: -8.611961, y: 0.083333336, z: 3.9640236}
+  speed: 0.2
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1329808324
 Transform:
   m_ObjectHideFlags: 1
@@ -4486,13 +4698,25 @@ MonoBehaviour:
   - {x: 0, y: 0.083333336, z: -10}
   - {x: -5.980979, y: 0.083333336, z: -9.790568}
   anchors:
-  - {x: 7.2735434, y: 0.083333336, z: -5.883524}
+  - {x: 6.3895545, y: 0.083333336, z: -4.7958035}
   - {x: 2.0973887, y: 0.083333336, z: -8.448952}
   - {x: -0.115361154, y: 0.083333336, z: -10.308858}
   - {x: 0.78202766, y: 0.083333336, z: -9.357809}
   - {x: -0.6647646, y: 0.083333336, z: -10.01239}
-  - {x: -3.6392899, y: 0.083333336, z: -11.750683}
-  speed: 0
+  - {x: -5.3162146, y: 0.083333336, z: -9.778178}
+  speed: 0.3
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1350414064
 Transform:
   m_ObjectHideFlags: 1
@@ -4927,6 +5151,18 @@ MonoBehaviour:
   pathPoints: []
   anchors: []
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1481112821
 GameObject:
   m_ObjectHideFlags: 1
@@ -5029,6 +5265,18 @@ MonoBehaviour:
   - {x: 1.3592293, y: 0.083333336, z: -9.0087385}
   - {x: -0.025895953, y: 0.083333336, z: -10.324595}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1541037358
 GameObject:
   m_ObjectHideFlags: 1
@@ -5468,6 +5716,18 @@ MonoBehaviour:
   - {x: 7.301517, y: 0.083333336, z: 4.6723843}
   - {x: 7.737867, y: 0.083333336, z: 0.56608677}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1627822305
 Transform:
   m_ObjectHideFlags: 1
@@ -5560,6 +5820,18 @@ MonoBehaviour:
   pathPoints: []
   anchors: []
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1643335034
 Transform:
   m_ObjectHideFlags: 1
@@ -6551,6 +6823,18 @@ MonoBehaviour:
   - {x: -1.6235721, y: 0.083333336, z: 5.655505}
   - {x: -2.043092, y: 0.083333336, z: 1.6778288}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1832417326
 GameObject:
   m_ObjectHideFlags: 1
@@ -6633,6 +6917,18 @@ MonoBehaviour:
   - {x: 5.4138727, y: 0.083333336, z: -7.7290053}
   - {x: 5.6462073, y: 0.083333336, z: 5.708911}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1844697644
 Transform:
   m_ObjectHideFlags: 1
@@ -6646,6 +6942,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 598811549}
   m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1847801673
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1847801675}
+  - component: {fileID: 1847801674}
+  m_Layer: 0
+  m_Name: New Game Object
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1847801674
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847801673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd64b83146dbf834681127961fdca537, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  self: {fileID: 0}
+--- !u!4 &1847801675
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847801673}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.40135, y: 0.083333336, z: -6.8826933}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 598811549}
+  m_RootOrder: 61
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1863231830
 GameObject:
@@ -7311,6 +7651,18 @@ MonoBehaviour:
   - {x: 0.3431307, y: 0.083333336, z: -10.21132}
   - {x: 2.5092514, y: 0.083333336, z: -10.289123}
   speed: 0.6
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1889950770
 Transform:
   m_ObjectHideFlags: 1
@@ -7363,7 +7715,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1902680010}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.6850929, y: 0.083333336, z: 14.617865}
+  m_LocalPosition: {x: -2.6441035, y: 0.083333336, z: 14.047282}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 598811549}
@@ -7410,6 +7762,18 @@ MonoBehaviour:
   - {x: -1.4930809, y: 0.083333336, z: 5.644356}
   - {x: -1.2596533, y: 0.083333336, z: 7.319895}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1909306538
 Transform:
   m_ObjectHideFlags: 1
@@ -7509,6 +7873,18 @@ MonoBehaviour:
   - {x: -2.0866644, y: 0.083333336, z: 1.8947523}
   - {x: -1.5799997, y: 0.083333336, z: 5.4385815}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1988668649
 Transform:
   m_ObjectHideFlags: 1
@@ -8050,6 +8426,18 @@ MonoBehaviour:
   - {x: -0.75599897, y: 0.083333336, z: 12.91892}
   - {x: 0.9657874, y: 0.083333336, z: 13.407026}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &2065533030
 Transform:
   m_ObjectHideFlags: 1
@@ -8063,6 +8451,118 @@ Transform:
   m_Children: []
   m_Father: {fileID: 598811549}
   m_RootOrder: 46
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2092376839
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2092376841}
+  - component: {fileID: 2092376840}
+  m_Layer: 0
+  m_Name: Link
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2092376840
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092376839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1dffcd3285bf5a46929a75551ea4320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  start: {fileID: 1847801674}
+  end: {fileID: 595800079}
+  pathPoints:
+  - {x: -4.40135, y: 0.083333336, z: -6.8826933}
+  - {x: -6.2836905, y: 0.083333336, z: -12.42221}
+  - {x: -1.2800548, y: 0.083333336, z: -16.589209}
+  - {x: 4.172843, y: 0.083333336, z: -10.55947}
+  - {x: 2.5, y: 0.083333336, z: 0}
+  - {x: 3.64398, y: 0.083333336, z: 7.245488}
+  anchors:
+  - {x: -3.62108, y: 0.083333336, z: -7.439488}
+  - {x: -6.2018285, y: 0.083333336, z: -11.396405}
+  - {x: -6.3655524, y: 0.083333336, z: -13.448014}
+  - {x: -3.3704193, y: 0.083333336, z: -16.470882}
+  - {x: 0.81030965, y: 0.083333336, z: -16.707535}
+  - {x: 3.987204, y: 0.083333336, z: -12.481395}
+  - {x: 4.358482, y: 0.083333336, z: -8.637546}
+  - {x: 2.7024832, y: 0.083333336, z: -1.646188}
+  - {x: 2.2975168, y: 0.083333336, z: 1.646188}
+  - {x: 3.3462486, y: 0.083333336, z: 5.5542727}
+  speed: 0.2
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -1
+      outSlope: -1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: -1
+      outSlope: -1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &2092376841
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092376839}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 598811549}
+  m_RootOrder: 63
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2101373082
 GameObject:
@@ -8102,6 +8602,18 @@ MonoBehaviour:
   - {x: 14.290984, y: 0.083333336, z: -9.209115}
   - {x: -0.97110605, y: 0.083333336, z: -1.1656206}
   speed: 0
+  XCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  YCameraOffset:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &2101373084
 Transform:
   m_ObjectHideFlags: 1

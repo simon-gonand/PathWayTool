@@ -30,6 +30,7 @@ public class PathEditor : Editor
         pathScript = target as Path;
 
         waypointsRList = new ReorderableList(serializedObject, waypointsList);
+
         waypointsRList.drawHeaderCallback += HeaderWaypointCallback;
         waypointsRList.onSelectCallback += SelectWaypointCallback;
         waypointsRList.drawElementCallback += ElementWaypointCallback;
@@ -38,6 +39,7 @@ public class PathEditor : Editor
         waypointsRList.draggable = false;
 
         linksRList = new ReorderableList(serializedObject, linksList);
+        linksRList.elementHeight = EditorGUIUtility.singleLineHeight * 2.0f;
         linksRList.drawHeaderCallback += HeaderLinkCallback;
         linksRList.onSelectCallback += SelectLinkCallback;
         linksRList.drawElementCallback += ElementLinkCallback;
@@ -65,11 +67,11 @@ public class PathEditor : Editor
         rect.y += 2;
         Waypoint waypoint = (waypointsList.GetArrayElementAtIndex(index).objectReferenceValue as Waypoint);
         EditorGUI.BeginChangeCheck();
-        Rect leftRect = new Rect(rect.x, rect.y, rect.width - rect.width / 3, rect.height);
-        Rect labelRect = new Rect(rect.x, rect.y, leftRect.width - leftRect.width / 5, rect.height);
+        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 3, rect.height);
+        Rect labelRect = new Rect(rect.x, rect.y, leftRect.width - leftRect.width / 4, rect.height);
         EditorGUI.LabelField(labelRect, "Waypoint " + index);
 
-        Rect buttonRect = new Rect(labelRect.x + labelRect.width, rect.y, leftRect.width / 5, rect.height);
+        Rect buttonRect = new Rect(labelRect.x + labelRect.width, rect.y, leftRect.width / 4, rect.height);
         if (GUI.Button(buttonRect, "+"))
         {
             GenericMenu addMenu = new GenericMenu();
@@ -80,14 +82,14 @@ public class PathEditor : Editor
             addMenu.ShowAsContext();
         }
 
-        Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width / 3, rect.height);
+        Rect rightRect = new Rect(leftRect.x + leftRect.width, rect.y, rect.width - rect.width / 3, rect.height);
         Rect xRect = new Rect(rightRect.x, rect.y, rightRect.width / 2, rect.height);
         Rect labelxRect = new Rect(xRect.x, rect.y, xRect.width / 4, rect.height);
         Rect floatxRect = new Rect(xRect.x + labelxRect.width, rect.y, xRect.width - xRect.width / 4, rect.height);
         Rect yRect = new Rect(rightRect.x + xRect.width, rect.y, rightRect.width / 2, rect.height);
         Rect labelyRect = new Rect(yRect.x, rect.y, yRect.width / 4, rect.height);
         Rect floatyRect = new Rect(yRect.x + labelyRect.width, rect.y, yRect.width - yRect.width / 4, rect.height);
-        //bolo bolo les pirates héhé
+
         EditorGUI.BeginChangeCheck();
         Vector3 newPosition = waypoint.transform.position;
         GUI.Label(labelxRect, "X");
@@ -171,17 +173,37 @@ public class PathEditor : Editor
     private void ElementLinkCallback(Rect rect, int index, bool isActive, bool isFocused)
     {
         rect.y += 2;
-        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 2, rect.height);
+        Rect leftRect = new Rect(rect.x, rect.y, rect.width / 5, rect.height);
         EditorGUI.LabelField(leftRect, index + " - " + (index + 1));
 
-        Rect rightRect = new Rect(rect.x + leftRect.width, rect.y, rect.width / 2, rect.height);
+        Rect rightRect = new Rect(rect.x + leftRect.width, rect.y, rect.width - rect.width / 5, rect.height);
+        Rect speedRect = new Rect(rect.x + rightRect.width / 2, rect.y, rightRect.width / 3, rect.height / 2);
+        Rect camOffsetXRect = new Rect(rightRect.x, speedRect.y + speedRect.height, rightRect.width / 2, rect.height / 2);
+        Rect camOffsetYRect = new Rect(camOffsetXRect.x + camOffsetXRect.width, speedRect.y + speedRect.height, rightRect.width / 2, rect.height / 2);
+        Link currentLink = linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link;
+        EditorGUIUtility.labelWidth /= 4;
         EditorGUI.BeginChangeCheck();
-        (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed = EditorGUI.FloatField(rightRect, "Speed", (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed);
+        currentLink.speed = EditorGUI.FloatField(speedRect, "Speed", currentLink.speed);
+        
         if (EditorGUI.EndChangeCheck())
         {
             if ((linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed < 0)
                 (linksList.GetArrayElementAtIndex(index).objectReferenceValue as Link).speed = 0;
         }
+        SerializedObject linkObject = new SerializedObject(currentLink);
+        linkObject.Update();
+        SerializedProperty camOffsetX = linkObject.FindProperty("XCameraOffset");
+        SerializedProperty camOffsetY = linkObject.FindProperty("YCameraOffset");
+        EditorGUIUtility.labelWidth *= 4;
+        EditorGUIUtility.labelWidth /= 2;
+        EditorGUIUtility.fieldWidth /= 6;
+        EditorGUI.PropertyField(camOffsetXRect, camOffsetX);
+        EditorGUI.PropertyField(camOffsetYRect, camOffsetY);
+
+        EditorGUIUtility.labelWidth *= 2;
+        EditorGUIUtility.fieldWidth *= 6;
+
+        linkObject.ApplyModifiedProperties();
     }
     #endregion
 
@@ -402,7 +424,8 @@ public class PathEditor : Editor
             Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            UpdateAnchors(prevPos, newPos, linkIndex, anchorIndex);
+            if (pathScript.links[linkIndex].anchors.Count > 0)
+                UpdateAnchors(prevPos, newPos, linkIndex, anchorIndex);
         }
         position = newPos;
 
@@ -411,7 +434,8 @@ public class PathEditor : Editor
         Vector3 xPos = Handles.Slider(position, Vector3.right, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            UpdateAnchors(prevPos, xPos, linkIndex, anchorIndex);
+            if (pathScript.links[linkIndex].anchors.Count > 0)
+                UpdateAnchors(prevPos, xPos, linkIndex, anchorIndex);
         }
         position = xPos;
 
@@ -420,7 +444,8 @@ public class PathEditor : Editor
         Vector3 zPos = Handles.Slider(position, Vector3.forward, 0.8f * constantZoom, Handles.ArrowHandleCap, Handles.SnapValue(0.1f, 0.1f));
         if (EditorGUI.EndChangeCheck())
         {
-            UpdateAnchors(prevPos, zPos, linkIndex, anchorIndex);
+            if (pathScript.links[linkIndex].anchors.Count > 0)
+                UpdateAnchors(prevPos, zPos, linkIndex, anchorIndex);
         }
         position = zPos;
 

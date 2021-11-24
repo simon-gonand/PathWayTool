@@ -19,19 +19,15 @@ public class Path : MonoBehaviour
             {
                 allPoints.Add(links[i].pathPoints[0]);
             }
-            Debug.Log(links[i].pathPoints.Count);
             for(int j = 1; j < links[i].pathPoints.Count; ++j)
             {
                 allPoints.Add(links[i].pathPoints[j]);
             }
-            Debug.Log(links[i].anchors.Count);
             for (int j = 0; j < links[i].anchors.Count; ++j)
             {
                 allAnchors.Add(links[i].anchors[j]);
             }
         }
-        Debug.Log(allPoints.Count);
-        Debug.Log(allAnchors.Count);
     }
 
     // Update is called once per frame
