@@ -8,7 +8,6 @@ public class FollowPath : MonoBehaviour
     public Transform self;
     public Transform camPosition;
 
-    private float moveAmount = 0.0f;
     private int linkIndex = 0;
 
     private Vector3 initialOffset;
