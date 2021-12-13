@@ -11,6 +11,8 @@ public class PathEditor : Editor
 {
     SerializedProperty waypointsList;
     SerializedProperty linksList;
+    SerializedProperty loop;
+    SerializedProperty loopLink;
 
     ReorderableList waypointsRList;
     ReorderableList linksRList;
@@ -26,6 +28,8 @@ public class PathEditor : Editor
     {
         waypointsList = serializedObject.FindProperty("waypoints");
         linksList = serializedObject.FindProperty("links");
+        loop = serializedObject.FindProperty("loop");
+        loopLink = serializedObject.FindProperty("loopLink");
 
         pathScript = target as Path;
 
@@ -361,7 +365,24 @@ public class PathEditor : Editor
         //EditorGUILayout.PropertyField(waypointsList);
         waypointsRList.DoLayoutList();
         linksRList.DoLayoutList();
-        
+
+        EditorGUI.BeginChangeCheck();
+        EditorGUILayout.PropertyField(loop);
+        if (EditorGUI.EndChangeCheck())
+        {
+            if (loop.boolValue)
+            {
+                Waypoint start = waypointsList.GetArrayElementAtIndex(waypointsList.arraySize - 1).objectReferenceValue as Waypoint;
+                Waypoint end = waypointsList.GetArrayElementAtIndex(0).objectReferenceValue as Waypoint;
+                loopLink.objectReferenceValue = CreateLink(start, end, linksList.arraySize);
+            }
+            else
+            {
+                int index = pathScript.links.IndexOf(loopLink.objectReferenceValue as Link);
+                linksList.DeleteArrayElementAtIndex(index);
+            }
+        }
+
         if (GUILayout.Button("Calculate Path"))
             CalculateLinks();
         if (GUILayout.Button("Calculate Selected Link"))
@@ -580,6 +601,20 @@ public class PathEditor : Editor
                     }
                     Handles.DrawLine(pathScript.links[selectedLinkIndex + 1].anchors[0], selectedLink.pathPoints[i + 1]);
                 }
+                else if (i * 2 + 1 > selectedLink.anchors.Count - 2 && pathScript.loop)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    pathScript.links[0].anchors[0] =
+                        Handles.Slider2D(pathScript.links[0].anchors[0],
+                        Vector3.up, Vector3.right, Vector3.forward, 0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Vector3 dist = pathScript.links[0].anchors[0] - selectedLink.pathPoints[i + 1];
+                        selectedLink.anchors[i * 2 + 1] = selectedLink.pathPoints[i + 1] - dist;
+                    }
+                    Handles.DrawLine(pathScript.links[0].anchors[0], selectedLink.pathPoints[i + 1]);
+                }
+
                 EditorGUI.BeginChangeCheck();
                 selectedLink.anchors[i * 2 + 1] = Handles.Slider2D(selectedLink.anchors[i * 2 + 1], Vector3.up, Vector3.right, Vector3.forward,
                     0.1f * constantZoom, Handles.DotHandleCap, Handles.SnapValue(1.0f, 1.0f));
@@ -594,6 +629,11 @@ public class PathEditor : Editor
                     {
                         Vector3 dist = selectedLink.anchors[i * 2 + 1] - selectedLink.pathPoints[i + 1];
                         pathScript.links[selectedLinkIndex + 1].anchors[0] = selectedLink.pathPoints[i + 1] - dist;
+                    }
+                    else if (selectedLinkIndex == pathScript.links.Count - 1)
+                    {
+                        Vector3 dist = selectedLink.anchors[i * 2 + 1] - selectedLink.pathPoints[i + 1];
+                        pathScript.links[0].anchors[0] = selectedLink.pathPoints[i + 1] - dist;
                     }
                 }
                 Vector3 nextPoint = selectedLink.pathPoints[i + 1];

@@ -10,6 +10,9 @@ public class Path : MonoBehaviour
     public List<Vector3> allPoints = new List<Vector3>();
     public List<Vector3> allAnchors = new List<Vector3>();
 
+    public bool loop;
+    public Link loopLink;
+
     // Start is called before the first frame update
     void Start()
     {
