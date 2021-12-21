@@ -358,6 +358,11 @@ public class PathEditor : Editor
         }
     }
 
+    private void BakePath()
+    {
+
+    }
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
@@ -383,6 +388,10 @@ public class PathEditor : Editor
             }
         }
 
+        if (GUILayout.Button("Bake Path"))
+        {
+            BakePath();
+        }
         if (GUILayout.Button("Calculate Path"))
             CalculateLinks();
         if (GUILayout.Button("Calculate Selected Link"))
