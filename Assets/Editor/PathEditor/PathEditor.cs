@@ -23,6 +23,8 @@ public class PathEditor : Editor
     int selectedLinkIndex;
 
     Path pathScript;
+
+    const int PRECISION = 100;
         
     private void OnEnable()
     {
@@ -358,9 +360,40 @@ public class PathEditor : Editor
         }
     }
 
+    private Vector3 CalculatePositionOnCurve(float tParam, int allPointIndex)
+    {
+        int nextAllPointIndex = allPointIndex + 1;
+        if (allPointIndex == pathScript.allPoints.Count - 1)
+        {
+            if (pathScript.loop)
+            {
+                nextAllPointIndex = 0;
+            }
+            else
+                return Vector3.negativeInfinity;
+        }
+
+        return Mathf.Pow(1 - tParam, 3) * pathScript.allPoints[allPointIndex] +
+            3 * Mathf.Pow(1 - tParam, 2) * tParam * pathScript.allAnchors[allPointIndex * 2] +
+            3 * (1 - tParam) * Mathf.Pow(tParam, 2) * pathScript.allAnchors[allPointIndex * 2 + 1] +
+            Mathf.Pow(tParam, 3) * pathScript.allPoints[nextAllPointIndex];
+    }
+
     private void BakePath()
     {
-
+        pathScript.FillAllPointsList();
+        pathScript.bakePath.Clear();
+        for (int i = 0; i < pathScript.allPoints.Count; ++i)
+        {
+            for (int j = 0; j <= PRECISION; ++j)
+            {
+                float tParam = j / (float)PRECISION;
+                Vector3 pos = CalculatePositionOnCurve(tParam, i);
+                if (pos != Vector3.negativeInfinity)
+                    pathScript.bakePath.Add(pos);
+            }
+        }
+        Debug.Log("Bake Finished");
     }
 
     public override void OnInspectorGUI()
@@ -414,6 +447,9 @@ public class PathEditor : Editor
             }
             selectedLink = null;
             selectedWaypoint = null;
+
+            pathScript.allPoints.Clear();
+            pathScript.bakePath.Clear();
         }
         serializedObject.ApplyModifiedProperties();
     }
@@ -525,8 +561,18 @@ public class PathEditor : Editor
         }
     }
 
+    private void DrawBakePath()
+    {
+        for(int i = 0; i < pathScript.bakePath.Count; ++i)
+        {
+            Vector3 nextPoint = (i == pathScript.bakePath.Count - 1) ? pathScript.bakePath[0] : pathScript.bakePath[i + 1];
+            Handles.DrawLine(pathScript.bakePath[i], nextPoint);
+        }
+    }
+
     private void OnSceneGUI()
     {
+        DrawBakePath();
         Tools.current = Tool.None;
         for (int i = 0; i < waypointsList.arraySize; ++i)
         {

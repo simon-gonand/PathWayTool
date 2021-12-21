@@ -13,16 +13,24 @@ public class Path : MonoBehaviour
     public bool loop;
     public Link loopLink;
 
+    public List<Vector3> bakePath = new List<Vector3>();
+
     // Start is called before the first frame update
     void Start()
     {
+    }
+
+    public void FillAllPointsList()
+    {
+        allPoints.Clear();
+        allAnchors.Clear();
         for (int i = 0; i < links.Count; ++i)
         {
             if (i == 0)
             {
                 allPoints.Add(links[i].pathPoints[0]);
             }
-            for(int j = 1; j < links[i].pathPoints.Count; ++j)
+            for (int j = 1; j < links[i].pathPoints.Count; ++j)
             {
                 allPoints.Add(links[i].pathPoints[j]);
             }

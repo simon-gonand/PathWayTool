@@ -17,6 +17,7 @@ public class FollowPath : MonoBehaviour
     private float tParam = 0.0f;
     private bool coroutineAllowed = true;
     int allPointIndex = 0;
+    private Vector3 previousPointPosition;
 
     private bool pathEnd = false;
 
@@ -24,7 +25,10 @@ public class FollowPath : MonoBehaviour
     void Start()
     {
         if (path.allPoints.Count > 0)
-            self.position = path.allPoints[0];
+        {
+            self.position = path.bakePath[0];
+            previousPointPosition = path.bakePath[0];
+        }
 
         initialPosY = self.position.y;
 
@@ -94,12 +98,51 @@ public class FollowPath : MonoBehaviour
         coroutineAllowed = true;
     }
 
+    private void SetPathPosition()
+    {
+        tParam = path.links[linkIndex].speed * Time.deltaTime;
+        Vector3 nextPoint = path.bakePath[allPointIndex];
+        nextPoint.y = initialPosY;
+        Debug.Log("NextPoint = " + nextPoint);
+        Debug.Log("Self = " + self.position);
+        if (!Mathf.Approximately(self.position.x, nextPoint.x) && !Mathf.Approximately(self.position.z, nextPoint.z))
+        {
+            Vector3 newPosition = Vector3.MoveTowards(self.position, nextPoint, tParam);
+            newPosition.y = initialPosY;
+            self.position = newPosition;
+        }
+        else
+        {
+            previousPointPosition = path.bakePath[allPointIndex];
+            ++allPointIndex;
+            Debug.Log(allPointIndex);
+            if (allPointIndex == path.bakePath.Count)
+            {
+                if (path.loop)
+                {
+                    allPointIndex = 0;
+                    linkIndex = 0;
+                }
+                else
+                {
+                    pathEnd = true;
+                }
+                return;
+            }
+            if (path.bakePath[allPointIndex].x == path.links[linkIndex + 1].start.self.position.x &&
+                path.bakePath[allPointIndex].z == path.links[linkIndex + 1].start.self.position.z)
+                ++linkIndex;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
         if (pathEnd) return;
-        if (coroutineAllowed)
-            StartCoroutine(FollowCurve());
+        SetPathPosition();
+        
+        /*if (coroutineAllowed)
+            StartCoroutine(FollowCurve());*/
         
         /*if (linkIndex >= path.links.Count)
         {
