@@ -32,12 +32,21 @@ public class Path : MonoBehaviour
             }
             for (int j = 1; j < links[i].pathPoints.Count; ++j)
             {
+                if (i == links.Count - 1 && j == links[i].pathPoints.Count - 1) continue;
                 allPoints.Add(links[i].pathPoints[j]);
             }
             for (int j = 0; j < links[i].anchors.Count; ++j)
             {
                 allAnchors.Add(links[i].anchors[j]);
             }
+        }
+    }
+
+    public void ClearLinksCurveLenghts()
+    {
+        foreach(Link link in links)
+        {
+            link.curveLenghts.Clear();
         }
     }
 

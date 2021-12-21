@@ -25,6 +25,8 @@ public class PathEditor : Editor
     Path pathScript;
 
     const int PRECISION = 100;
+
+    private int linkIndex = 0;
         
     private void OnEnable()
     {
@@ -372,7 +374,13 @@ public class PathEditor : Editor
             else
                 return Vector3.negativeInfinity;
         }
-
+        if (allPointIndex == 8)
+        {
+            Debug.Log(pathScript.allPoints.Count);
+            Debug.Log(pathScript.allAnchors.Count);
+            Debug.Log(allPointIndex * 2);
+            Debug.Log(nextAllPointIndex);
+        }
         return Mathf.Pow(1 - tParam, 3) * pathScript.allPoints[allPointIndex] +
             3 * Mathf.Pow(1 - tParam, 2) * tParam * pathScript.allAnchors[allPointIndex * 2] +
             3 * (1 - tParam) * Mathf.Pow(tParam, 2) * pathScript.allAnchors[allPointIndex * 2 + 1] +
@@ -381,16 +389,36 @@ public class PathEditor : Editor
 
     private void BakePath()
     {
+        linkIndex = 0;
         pathScript.FillAllPointsList();
         pathScript.bakePath.Clear();
         for (int i = 0; i < pathScript.allPoints.Count; ++i)
         {
+            if (pathScript.allPoints[i].x == pathScript.links[linkIndex].end.transform.position.x &&
+                pathScript.allPoints[i].z == pathScript.links[linkIndex].end.transform.position.z)
+                ++linkIndex;
             for (int j = 0; j <= PRECISION; ++j)
             {
                 float tParam = j / (float)PRECISION;
+                
                 Vector3 pos = CalculatePositionOnCurve(tParam, i);
                 if (pos != Vector3.negativeInfinity)
                     pathScript.bakePath.Add(pos);
+            }
+
+            float curveLength = 0;
+            for (int j = i; j < i + PRECISION - 1; ++j)
+            {
+                curveLength += Vector3.Distance(pathScript.bakePath[j], pathScript.bakePath[j + 1]);
+            }
+            pathScript.links[linkIndex].curveLenghts.Add(curveLength);
+        }
+        for(int i = 0; i < pathScript.links.Count; ++i)
+        {
+            Link link = pathScript.links[i];
+            for (int j = 0; j < link.curveLenghts.Count; ++j)
+            {
+                //Debug.Log("Link index : " + i + ", " + j + ", Length : " + link.curveLenghts[j]);
             }
         }
         Debug.Log("Bake Finished");

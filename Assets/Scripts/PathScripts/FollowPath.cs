@@ -103,8 +103,6 @@ public class FollowPath : MonoBehaviour
         tParam = path.links[linkIndex].speed * Time.deltaTime;
         Vector3 nextPoint = path.bakePath[allPointIndex];
         nextPoint.y = initialPosY;
-        Debug.Log("NextPoint = " + nextPoint);
-        Debug.Log("Self = " + self.position);
         if (!Mathf.Approximately(self.position.x, nextPoint.x) && !Mathf.Approximately(self.position.z, nextPoint.z))
         {
             Vector3 newPosition = Vector3.MoveTowards(self.position, nextPoint, tParam);
@@ -115,7 +113,6 @@ public class FollowPath : MonoBehaviour
         {
             previousPointPosition = path.bakePath[allPointIndex];
             ++allPointIndex;
-            Debug.Log(allPointIndex);
             if (allPointIndex == path.bakePath.Count)
             {
                 if (path.loop)
