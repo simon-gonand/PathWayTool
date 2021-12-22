@@ -40,14 +40,7 @@ public class Path : MonoBehaviour
                 allAnchors.Add(links[i].anchors[j]);
             }
         }
-    }
-
-    public void ClearLinksCurveLenghts()
-    {
-        foreach(Link link in links)
-        {
-            link.curveLenghts.Clear();
-        }
+        allPoints.Add(waypoints[waypoints.Count - 1].transform.position);
     }
 
     // Update is called once per frame

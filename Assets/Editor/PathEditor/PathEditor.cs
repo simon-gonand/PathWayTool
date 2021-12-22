@@ -372,7 +372,9 @@ public class PathEditor : Editor
                 nextAllPointIndex = 0;
             }
             else
+            {
                 return Vector3.negativeInfinity;
+            }
         }
         return Mathf.Pow(1 - tParam, 3) * pathScript.allPoints[allPointIndex] +
             3 * Mathf.Pow(1 - tParam, 2) * tParam * pathScript.allAnchors[allPointIndex * 2] +
@@ -380,33 +382,60 @@ public class PathEditor : Editor
             Mathf.Pow(tParam, 3) * pathScript.allPoints[nextAllPointIndex];
     }
 
+    private List<Vector3> CalculatePathPositions(int pointIndex, int precision)
+    {
+        List<Vector3> results = new List<Vector3>();
+        for (int j = 0; j <= precision; ++j)
+        {
+            float tParam = j / (float)precision;
+            Vector3 pos = CalculatePositionOnCurve(tParam, pointIndex);
+            if (pos.x != Vector3.negativeInfinity.x || pos.y != Vector3.negativeInfinity.y || pos.z != Vector3.negativeInfinity.z)
+            {
+                results.Add(pos);
+            }
+        }
+        return results;
+    }
+
     private void BakePath()
     {
         linkIndex = 0;
         pathScript.FillAllPointsList();
-        pathScript.ClearLinksCurveLenghts();
         pathScript.bakePath.Clear();
+
+        float firstCurveLength = 0.0f;
+        float currentCurveLength = 0.0f;
+        bool firstPass = true;
+
+        List<Vector3> pathPositions = new List<Vector3>();
         for (int i = 0; i < pathScript.allPoints.Count; ++i)
         {
+            if (i == pathScript.allPoints.Count - 1 && !pathScript.loop) continue;
             if (pathScript.allPoints[i].x == pathScript.links[linkIndex].end.transform.position.x &&
-                pathScript.allPoints[i].z == pathScript.links[linkIndex].end.transform.position.z)
-                ++linkIndex;
-            for (int j = 0; j <= PRECISION; ++j)
+                pathScript.allPoints[i].z == pathScript.links[linkIndex].end.transform.position.z) 
             {
-                float tParam = j / (float)PRECISION;
-                
-                Vector3 pos = CalculatePositionOnCurve(tParam, i);
-                if (pos != Vector3.negativeInfinity)
-                    pathScript.bakePath.Add(pos);
+                ++linkIndex;
+                firstPass = true;
+            }
+            pathPositions = CalculatePathPositions(i, PRECISION);
+
+            currentCurveLength = 0.0f;
+            for (int j = 0; j < PRECISION; ++j)
+            {
+                currentCurveLength += Mathf.Sqrt(Mathf.Pow(pathPositions[j + 1].x - pathPositions[j].x, 2) + 
+                    Mathf.Pow(pathPositions[j + 1].z - pathPositions[j].z, 2));
             }
 
-            float curveLength = 0;
-            for (int j = i * PRECISION; j < i * PRECISION + PRECISION; ++j)
-            {
-                curveLength += Mathf.Sqrt(Mathf.Pow(pathScript.bakePath[j + 1].x - pathScript.bakePath[j].x, 2) + 
-                    Mathf.Pow(pathScript.bakePath[j + 1].z - pathScript.bakePath[j].z, 2));
+            if (firstPass) {
+                firstCurveLength = currentCurveLength;
+                pathScript.bakePath.AddRange(pathPositions);
+                firstPass = false;
             }
-            pathScript.links[linkIndex].curveLenghts.Add(curveLength);
+            else
+            {
+                int precision = PRECISION / ((int)(firstCurveLength / currentCurveLength) + 1);
+                pathScript.bakePath.AddRange(CalculatePathPositions(i, precision));
+            }                
         }
         Debug.Log("Bake Finished");
     }
@@ -580,7 +609,7 @@ public class PathEditor : Editor
     {
         for(int i = 0; i < pathScript.bakePath.Count; ++i)
         {
-            Vector3 nextPoint = (i == pathScript.bakePath.Count - 1) ? pathScript.bakePath[0] : pathScript.bakePath[i + 1];
+            Vector3 nextPoint = (i == pathScript.bakePath.Count - 1) ? (pathScript.loop) ? pathScript.bakePath[0] : pathScript.bakePath[i] : pathScript.bakePath[i + 1];
             Handles.DrawLine(pathScript.bakePath[i], nextPoint);
         }
     }

@@ -14,8 +14,6 @@ public class Link : MonoBehaviour
     public AnimationCurve XCameraOffset;
     public AnimationCurve YCameraOffset;
 
-    public List<float> curveLenghts = new List<float>();
-
     public bool Equals(Waypoint start, Waypoint end)
     {
         return this.start == start && this.end == end;

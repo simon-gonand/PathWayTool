@@ -9,25 +9,26 @@ public class FollowPath : MonoBehaviour
     public Transform camPosition;
 
     private int linkIndex = 0;
+    private int linkCurveIndex = 0;
 
     private Vector3 initialOffset;
     private Vector3 initialPos;
     private float initialPosY;
 
     private float tParam = 0.0f;
+    private float currentSpeed = 0.0f;
     private bool coroutineAllowed = true;
     int allPointIndex = 0;
-    private Vector3 previousPointPosition;
 
     private bool pathEnd = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (path.allPoints.Count > 0)
+        if (path.bakePath.Count > 0)
         {
             self.position = path.bakePath[0];
-            previousPointPosition = path.bakePath[0];
+            currentSpeed = path.links[0].speed;
         }
 
         initialPosY = self.position.y;
@@ -80,8 +81,6 @@ public class FollowPath : MonoBehaviour
 
         tParam = 0.0f;
         ++allPointIndex;
-        Debug.Log(linkIndex);
-        Debug.Log(path.links.Count);
         if (allPointIndex == path.allPoints.Count - 1)
         {
             if (path.loop)
@@ -98,6 +97,11 @@ public class FollowPath : MonoBehaviour
         coroutineAllowed = true;
     }
 
+    /*private void SetSpeed()
+    {
+        currentSpeed = path.links[linkIndex].curveLenghts[0] / path.links[linkIndex].curveLenghts[linkCurveIndex] * path.links[linkIndex].speed * 100;
+    }*/
+
     private void SetPathPosition()
     {
         tParam = path.links[linkIndex].speed * Time.deltaTime;
@@ -105,13 +109,18 @@ public class FollowPath : MonoBehaviour
         nextPoint.y = initialPosY;
         if (!Mathf.Approximately(self.position.x, nextPoint.x) && !Mathf.Approximately(self.position.z, nextPoint.z))
         {
-            Vector3 newPosition = Vector3.MoveTowards(self.position, nextPoint, tParam);
-            newPosition.y = initialPosY;
-            self.position = newPosition;
+            self.position = Vector3.MoveTowards(self.position, nextPoint, tParam);
         }
         else
         {
-            previousPointPosition = path.bakePath[allPointIndex];
+            int nextLinkIndex = linkIndex + 1;
+            if (linkIndex == path.links.Count - 1)
+            {
+                if (path.loop)
+                    nextLinkIndex = 0;
+                else
+                    nextLinkIndex = -1;
+            }
             ++allPointIndex;
             if (allPointIndex == path.bakePath.Count)
             {
@@ -119,6 +128,7 @@ public class FollowPath : MonoBehaviour
                 {
                     allPointIndex = 0;
                     linkIndex = 0;
+                    linkCurveIndex = 0;
                 }
                 else
                 {
@@ -126,9 +136,19 @@ public class FollowPath : MonoBehaviour
                 }
                 return;
             }
-            if (path.bakePath[allPointIndex].x == path.links[linkIndex + 1].start.self.position.x &&
-                path.bakePath[allPointIndex].z == path.links[linkIndex + 1].start.self.position.z)
+
+            if (nextLinkIndex >= 0 && path.bakePath[allPointIndex].x == path.links[nextLinkIndex].start.self.position.x &&
+                path.bakePath[allPointIndex].z == path.links[nextLinkIndex].start.self.position.z)
+            {
                 ++linkIndex;
+                linkCurveIndex = 0;
+                currentSpeed = path.links[linkIndex].speed;
+            }
+            else if (path.bakePath[allPointIndex].x == path.links[linkIndex].pathPoints[linkCurveIndex + 1].x &&
+                     path.bakePath[allPointIndex].z == path.links[linkIndex].pathPoints[linkCurveIndex + 1].z)
+            { 
+                ++linkCurveIndex;
+            }
         }
     }
 
