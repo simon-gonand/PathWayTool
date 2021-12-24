@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Events;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
@@ -13,6 +12,7 @@ public class PathEditor : Editor
     SerializedProperty linksList;
     SerializedProperty loop;
     SerializedProperty loopLink;
+    SerializedProperty bakePrecision;
 
     ReorderableList waypointsRList;
     ReorderableList linksRList;
@@ -24,8 +24,6 @@ public class PathEditor : Editor
 
     Path pathScript;
 
-    const int PRECISION = 100;
-
     private int linkIndex = 0;
         
     private void OnEnable()
@@ -34,6 +32,7 @@ public class PathEditor : Editor
         linksList = serializedObject.FindProperty("links");
         loop = serializedObject.FindProperty("loop");
         loopLink = serializedObject.FindProperty("loopLink");
+        bakePrecision = serializedObject.FindProperty("bakePrecision");
 
         pathScript = target as Path;
 
@@ -382,9 +381,10 @@ public class PathEditor : Editor
             Mathf.Pow(tParam, 3) * pathScript.allPoints[nextAllPointIndex];
     }
 
-    private List<Vector3> CalculatePathPositions(int pointIndex, int precision)
+    private void CalculatePathPositions(int pointIndex, int precision)
     {
         List<Vector3> results = new List<Vector3>();
+        float curveLength = 0.0f;
         for (int j = 0; j <= precision; ++j)
         {
             float tParam = j / (float)precision;
@@ -393,21 +393,24 @@ public class PathEditor : Editor
             {
                 results.Add(pos);
             }
+            if (j > 0)
+            {
+                curveLength += Mathf.Sqrt(Mathf.Pow(results[j].x - results[j - 1].x, 2) +
+                    Mathf.Pow(results[j].z - results[j - 1].z, 2));
+            }
         }
-        return results;
+        pathScript.links[linkIndex].curveLengths.Add(curveLength);
+        Debug.Log(curveLength);
+        pathScript.bakePath.AddRange(results);
     }
 
     private void BakePath()
     {
         linkIndex = 0;
         pathScript.FillAllPointsList();
+        pathScript.ClearLinksCurveLengths();
         pathScript.bakePath.Clear();
 
-        float firstCurveLength = 0.0f;
-        float currentCurveLength = 0.0f;
-        bool firstPass = true;
-
-        List<Vector3> pathPositions = new List<Vector3>();
         for (int i = 0; i < pathScript.allPoints.Count; ++i)
         {
             if (i == pathScript.allPoints.Count - 1 && !pathScript.loop) continue;
@@ -415,27 +418,8 @@ public class PathEditor : Editor
                 pathScript.allPoints[i].z == pathScript.links[linkIndex].end.transform.position.z) 
             {
                 ++linkIndex;
-                firstPass = true;
             }
-            pathPositions = CalculatePathPositions(i, PRECISION);
-
-            currentCurveLength = 0.0f;
-            for (int j = 0; j < PRECISION; ++j)
-            {
-                currentCurveLength += Mathf.Sqrt(Mathf.Pow(pathPositions[j + 1].x - pathPositions[j].x, 2) + 
-                    Mathf.Pow(pathPositions[j + 1].z - pathPositions[j].z, 2));
-            }
-
-            if (firstPass) {
-                firstCurveLength = currentCurveLength;
-                pathScript.bakePath.AddRange(pathPositions);
-                firstPass = false;
-            }
-            else
-            {
-                int precision = PRECISION / ((int)(firstCurveLength / currentCurveLength) + 1);
-                pathScript.bakePath.AddRange(CalculatePathPositions(i, precision));
-            }                
+            CalculatePathPositions(i, bakePrecision.intValue);
         }
         Debug.Log("Bake Finished");
     }
@@ -444,7 +428,6 @@ public class PathEditor : Editor
     {
         serializedObject.Update();
 
-        //EditorGUILayout.PropertyField(waypointsList);
         waypointsRList.DoLayoutList();
         linksRList.DoLayoutList();
 
@@ -465,6 +448,11 @@ public class PathEditor : Editor
             }
         }
 
+        bakePrecision.intValue = EditorGUILayout.IntSlider(new GUIContent("Bake Precision", 
+            "Set how many segments are going to be create for each link to have uniform speed. \n" +
+            "Be careful less there are segment and more the ship will go fast. If there is too many segments it's possible that there is some bugs. \n" +
+            "Try not to have to short links please"), 
+            bakePrecision.intValue, 10, 200);
         if (GUILayout.Button("Bake Path"))
         {
             BakePath();

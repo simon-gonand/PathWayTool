@@ -14,7 +14,7 @@ public class Path : MonoBehaviour
     public Link loopLink;
 
     public List<Vector3> bakePath = new List<Vector3>();
-
+    public int bakePrecision;
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +40,14 @@ public class Path : MonoBehaviour
                 allAnchors.Add(links[i].anchors[j]);
             }
         }
-        allPoints.Add(waypoints[waypoints.Count - 1].transform.position);
+        if (!loop)
+            allPoints.Add(waypoints[waypoints.Count - 1].transform.position);
+    }
+
+    public void ClearLinksCurveLengths()
+    {
+        foreach (Link link in links)
+            link.curveLengths.Clear();
     }
 
     // Update is called once per frame
